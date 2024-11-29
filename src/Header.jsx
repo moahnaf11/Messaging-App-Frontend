@@ -1,6 +1,6 @@
 function Header() {
   return (
-    <header className="p-3 bg-gray-800 flex justify-between items-center">
+    <header className="p-3 bg-gray-800 flex justify-between items-center sticky top-0">
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold text-white font-custom">Whispr</h1>
         <svg
