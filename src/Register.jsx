@@ -1,9 +1,85 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 function Register() {
+  const [registerForm, setRegisterForm] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmpassword: "",
+  });
+  const [formError, setFormError] = useState({
+    firstname: null,
+    lastname: null,
+    email: null,
+    username: null,
+    password: null,
+    confirmpassword: null,
+  });
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    // Update form values
+    setRegisterForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    validateField(e.target);
+  }
+
+  function validateField(input) {
+    // Validate input field
+    if (!input.checkValidity()) {
+      // Set error message based on validity state
+      let errorMessage = "";
+      if (input.validity.valueMissing) {
+        errorMessage = "This field is required";
+      } else if (input.validity.tooShort) {
+        errorMessage =
+          input.name === "username"
+            ? "Username must be at least 3 characters long."
+            : input.name === "password" || input.name === "confirmpassword"
+            ? "Password must be at least 6 characters long."
+            : errorMessage;
+      } else if (input.name === "email" && input.validity.typeMismatch) {
+        errorMessage = "Enter a valid email address.";
+      }
+
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: errorMessage,
+      }));
+    } else {
+      // Clear error message if input is valid
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: null,
+      }));
+    }
+
+    // Additional logic for confirm password match
+    if (input.name === "confirmpassword") {
+      if (input.value !== registerForm.password) {
+        setFormError((prev) => ({
+          ...prev,
+          confirmpassword: "Password and confirm password do not match.",
+        }));
+      } else {
+        setFormError((prev) => ({
+          ...prev,
+          confirmpassword: null,
+        }));
+      }
+    }
+  }
+
   return (
     <main className="min-h-screen p-3 bg-gray-800 flex justify-center items-center">
       <form
+        noValidate
         action="#"
         className="bg-white p-3 rounded-md md:min-w-[50%] min-w-[85%] flex flex-col gap-5"
       >
@@ -44,10 +120,13 @@ function Register() {
             className="border-black border-[3px] rounded-full px-2 py-1"
             type="text"
             id="firstname"
+            value={registerForm.firstname}
             placeholder="firstname"
             name="firstname"
+            onChange={(e) => handleChange(e)}
             required
           />
+          <span className="text-red-600">{formError.firstname}</span>
         </div>
 
         <div className="flex flex-col">
@@ -59,9 +138,12 @@ function Register() {
             type="text"
             id="lastname"
             placeholder="lastname"
+            value={registerForm.lastname}
             name="lastname"
+            onChange={(e) => handleChange(e)}
             required
           />
+          <span className="text-red-600">{formError.lastname}</span>
         </div>
 
         <div className="flex flex-col">
@@ -72,10 +154,13 @@ function Register() {
             className="border-black border-[3px] rounded-full px-2 py-1"
             type="email"
             id="email"
+            value={registerForm.email}
             placeholder="email"
             name="email"
+            onChange={(e) => handleChange(e)}
             required
           />
+          <span className="text-red-600">{formError.email}</span>
         </div>
 
         <div className="flex flex-col">
@@ -87,9 +172,13 @@ function Register() {
             type="text"
             id="username"
             placeholder="username"
+            value={registerForm.username}
             name="username"
+            onChange={(e) => handleChange(e)}
+            minLength={3}
             required
           />
+          <span className="text-red-600">{formError.username}</span>
         </div>
         <div className="flex flex-col">
           <label className="font-custom font-bold" htmlFor="password">
@@ -100,9 +189,13 @@ function Register() {
             type="password"
             id="password"
             name="password"
+            value={registerForm.password}
             placeholder="password"
+            minLength={6}
+            onChange={(e) => handleChange(e)}
             required
           />
+          <span className="text-red-600">{formError.password}</span>
         </div>
 
         <div className="flex flex-col">
@@ -114,9 +207,13 @@ function Register() {
             type="password"
             id="confirmpassword"
             name="confirmpassword"
+            value={registerForm.confirmpassword}
             placeholder="confirmpassword"
+            minLength={6}
+            onChange={(e) => handleChange(e)}
             required
           />
+          <span className="text-red-600">{formError.confirmpassword}</span>
         </div>
 
         <div className="flex items-center justify-between gap-5">

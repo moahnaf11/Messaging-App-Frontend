@@ -18,30 +18,41 @@ function Login() {
       ...prev,
       [name]: value,
     }));
-    setFormError((prev) => {
-      if (name === "username") {
-        return {
-          ...prev,
-          username:
-            value.length < 3
-              ? "Username must be a minimum of 3 characters"
-              : null,
-        };
-      } else if (name === "password") {
-        return {
-          ...prev,
-          password:
-            value.length < 6
-              ? "Password must be a minimum of 6 characters"
-              : null,
-        };
+    validateField(e.target);
+  }
+
+  function validateField(input) {
+    // Check if the input is valid
+    if (!input.checkValidity()) {
+      // Set custom error message based on the validity property
+      let errorMessage;
+      if (input.validity.valueMissing) {
+        errorMessage = "This field is required.";
+      } else if (input.validity.tooShort) {
+        errorMessage =
+          input.name === "username"
+            ? "Username must be at least 3 characters."
+            : "Password must be at least 6 characters.";
       }
-    });
+
+      // Update the formError state
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: errorMessage,
+      }));
+    } else {
+      // Clear the error if the field is valid
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: null,
+      }));
+    }
   }
 
   return (
     <main className="min-h-screen p-3 bg-gray-800 flex justify-center items-center">
       <form
+        noValidate
         action="#"
         className="bg-white p-3 rounded-md md:min-w-[50%] min-w-[85%] flex flex-col gap-5"
       >
@@ -82,14 +93,13 @@ function Login() {
             type="text"
             id="username"
             placeholder="username"
+            value={loginForm.username}
             name="username"
             minLength={3}
             onChange={(e) => handleChange(e)}
             required
           />
-          <span className="text-red-600">
-            {formError.username ? formError.username : null}
-          </span>
+          <span className="text-red-600">{formError.username}</span>
         </div>
         <div className="flex flex-col">
           <label className="font-custom font-bold" htmlFor="password">
@@ -101,13 +111,12 @@ function Login() {
             id="password"
             name="password"
             placeholder="password"
+            value={loginForm.password}
             minLength={6}
             onChange={(e) => handleChange(e)}
             required
           />
-          <span className="text-red-600">
-            {formError.password ? formError.password : null}
-          </span>
+          <span className="text-red-600">{formError.password}</span>
         </div>
 
         <div className="flex items-center justify-between gap-5">
