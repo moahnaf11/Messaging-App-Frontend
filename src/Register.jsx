@@ -284,6 +284,7 @@ function Register() {
               required
             />
             <button
+              type="button"
               onClick={() => handleShowPassword("password")}
               className="absolute right-[4%]"
             >
@@ -365,6 +366,7 @@ function Register() {
               required
             />
             <button
+              type="button"
               onClick={() => handleShowPassword("confirmpassword")}
               className="absolute right-[4%]"
             >

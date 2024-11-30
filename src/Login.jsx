@@ -185,6 +185,7 @@ function Login() {
               required
             />
             <button
+              type="button"
               onClick={handleShowPassword}
               className="absolute right-[4%]"
             >
@@ -247,6 +248,12 @@ function Login() {
             </button>
           </div>
           <span className="text-red-600">{formError.password}</span>
+        </div>
+
+        <div>
+          <Link className="text-blue-700" to="/forgot-password">
+            Forgot Password?
+          </Link>
         </div>
 
         <div className="flex items-center justify-between gap-5">
