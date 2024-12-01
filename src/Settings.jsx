@@ -1,14 +1,62 @@
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import {
+  NavLink,
+  Link,
+  useNavigate,
+  useOutletContext,
+  Outlet,
+} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 function Settings() {
   const { setisLoggedIn } = useOutletContext();
   const navigate = useNavigate();
+  // const [userPayload, setUserPayload] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   function handleLogOut() {
     setisLoggedIn(false);
     localStorage.removeItem("token");
     navigate("/");
   }
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        console.log(token);
+        if (token) {
+          const decodedPayload = jwtDecode(token);
+          // setUserPayload(decodedPayload);
+
+          const response = await fetch(
+            `http://localhost:3000/profile/${decodedPayload.id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`, // Pass the token for authentication
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            const data = await response.json();
+            console.log("user profile not found", data);
+            return;
+          }
+
+          const data = await response.json();
+          console.log("users profile data", data);
+          setUserProfile(data); // Store user profile data
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
   return (
     <main className="min-h-screen p-3 bg-gray-800 text-white grid grid-cols-[1fr_2fr] gap-4">
       <div className="p-3 grid grid-cols-1 auto-rows-min gap-16">
@@ -58,12 +106,18 @@ function Settings() {
         </div>
         {/* Setting Links */}
         <div className="flex flex-col">
-          <Link className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block ">
+          <NavLink
+            to="/settings"
+            className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block "
+          >
             Profile
-          </Link>
-          <Link className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block ">
+          </NavLink>
+          <NavLink
+            to="change-password"
+            className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block "
+          >
             Change Password
-          </Link>
+          </NavLink>
           <button
             onClick={handleLogOut}
             className="p-3 flex items-center justify-between  font-custom font-bold hover:bg-white hover:text-black "
@@ -103,7 +157,9 @@ function Settings() {
           </button>
         </div>
       </div>
-      <div className="bg-red-400"></div>
+      <div className="bg-red-400">
+        <Outlet context={{ userProfile, handleLogOut }}></Outlet>
+      </div>
     </main>
   );
 }

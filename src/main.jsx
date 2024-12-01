@@ -11,6 +11,8 @@ import ResetPassword from "./ResetPassword.jsx";
 import Chat from "./Chat.jsx";
 import AuthRoute from "./AuthRoute.jsx";
 import Settings from "./Settings.jsx";
+import Profile from "./Profile.jsx";
+import ChangePassword from "./ChangePassword.jsx";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +27,14 @@ const router = createBrowserRouter([
           </AuthRoute>
         ),
       },
-      { path: "settings", element: <Settings /> },
+      {
+        path: "settings",
+        element: <Settings />,
+        children: [
+          { index: true, element: <Profile /> },
+          { path: "change-password", element: <ChangePassword /> },
+        ],
+      },
       {
         path: "home",
         element: <LandingPage />,

@@ -89,7 +89,7 @@ function Login() {
           const data = await response.json();
           if (Array.isArray(data.error)) {
             const errors = data.error.reduce((acc, error) => {
-              acc[error.param] = error.msg; // Match `param` to the field name
+              acc[error.path] = error.msg; // Match `path` to the field name
               return acc;
             }, {});
             setFormError(errors);
@@ -109,7 +109,7 @@ function Login() {
 
         console.log("Login successful:", data);
         // Handle success (store token)
-        localStorage.setItem("token", JSON.stringify(data.token));
+        localStorage.setItem("token", data.token);
         setisLoggedIn(true);
         // redirect to chat page
         navigate("/");
