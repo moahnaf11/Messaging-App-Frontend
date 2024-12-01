@@ -8,6 +8,9 @@ import LandingPage from "./LandingPage.jsx";
 import Register from "./Register.jsx";
 import ForgotPassword from "./forgotPassword.jsx";
 import ResetPassword from "./ResetPassword.jsx";
+import Chat from "./Chat.jsx";
+import AuthRoute from "./AuthRoute.jsx";
+import Settings from "./Settings.jsx";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +19,15 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: (
+          <AuthRoute>
+            <Chat />
+          </AuthRoute>
+        ),
+      },
+      { path: "settings", element: <Settings /> },
+      {
+        path: "home",
         element: <LandingPage />,
       },
       {

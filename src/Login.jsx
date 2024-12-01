@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useOutletContext } from "react-router-dom";
 import { useState } from "react";
 
 function Login() {
@@ -11,6 +11,8 @@ function Login() {
     password: null,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { setisLoggedIn } = useOutletContext();
 
   // handle input value changes
   function handleChange(e) {
@@ -108,6 +110,9 @@ function Login() {
         console.log("Login successful:", data);
         // Handle success (store token)
         localStorage.setItem("token", JSON.stringify(data.token));
+        setisLoggedIn(true);
+        // redirect to chat page
+        navigate("/");
       } catch (error) {
         console.error("Error during login:", error);
       }

@@ -3,12 +3,12 @@ import Header from "./Header";
 import { Outlet } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [isLoggedIn, setisLoggedIn] = useState(!!localStorage.getItem("token"));
   return (
     <>
       {/* header component */}
-      <Header></Header>
-      <Outlet />
+      <Header isLoggedIn={isLoggedIn}></Header>
+      <Outlet context={{ isLoggedIn, setisLoggedIn }} />
     </>
   );
 }
