@@ -1,7 +1,138 @@
 import { useOutletContext } from "react-router-dom";
+import { useRef, useState } from "react";
+import Dialog from "./Dialog";
 
 function Profile() {
-  const { userProfile } = useOutletContext();
+  const { userProfile, setUserProfile } = useOutletContext();
+  const dialogRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    username: "",
+    bio: "",
+  });
+
+  const [formError, setFormError] = useState({
+    firstname: null,
+    lastname: null,
+    email: null,
+    username: null,
+    bio: null,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    validateField(e.target);
+  };
+
+  function validateField(input) {
+    // Validate input field
+    if (!input.checkValidity()) {
+      // Set error message based on validity state
+      let errorMessage = "";
+      if (input.validity.valueMissing) {
+        errorMessage = "This field is required";
+      } else if (input.validity.tooShort) {
+        errorMessage = "Username must be at least 3 characters long.";
+      } else if (input.name === "email" && input.validity.typeMismatch) {
+        errorMessage = "Enter a valid email address.";
+      }
+
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: errorMessage,
+      }));
+    } else {
+      // Clear error message if input is valid
+      setFormError((prev) => ({
+        ...prev,
+        [input.name]: null,
+      }));
+    }
+  }
+
+  // Function to open the dialog
+  const openDialog = () => {
+    setFormData({
+      firstname: userProfile.firstname,
+      lastname: userProfile.lastname,
+      email: userProfile.email,
+      username: userProfile.username,
+      bio: userProfile.status || "",
+    });
+    dialogRef.current.showModal();
+  };
+
+  // Function to close the dialog
+  const closeDialog = () => {
+    setFormError({
+      firstname: null,
+      lastname: null,
+      email: null,
+      username: null,
+      bio: null,
+    });
+    dialogRef.current.close();
+  };
+
+  function handleReset() {
+    setFormData({
+      firstname: "",
+      lastname: "",
+      email: "",
+      username: "",
+      bio: "",
+    });
+
+    setFormError({
+      firstname: null,
+      lastname: null,
+      email: null,
+      username: null,
+      status: null,
+    });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!e.target.checkValidity()) {
+      return;
+    }
+    closeDialog();
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/profile/${userProfile.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            firstname: formData.firstname,
+            lastname: formData.lastname,
+            username: formData.username,
+            email: formData.email,
+            bio: formData.bio,
+          }),
+        }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to update user profile", data);
+        return;
+      }
+      const data = await response.json();
+      setUserProfile(data);
+    } catch (error) {}
+  }
 
   return (
     <main className="min-h-screen p-3 text-white flex flex-col gap-5">
@@ -103,10 +234,10 @@ function Profile() {
       </section>
 
       {userProfile && (
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col min-h-screen gap-3">
           <div className="flex items-center justify-between">
             <h2 className="font-bold font-custom text-lg">Details</h2>
-            <button>
+            <button onClick={openDialog}>
               <svg
                 className="size-7"
                 viewBox="0 0 24 24"
@@ -161,6 +292,16 @@ function Profile() {
             <div className="font-custom font-bold">Status</div>
             <div>{userProfile.status}</div>
           </div>
+          {/* dialog */}
+          <Dialog
+            dialogRef={dialogRef}
+            handleSubmit={handleSubmit}
+            handleReset={handleReset}
+            formError={formError}
+            formData={formData}
+            closeDialog={closeDialog}
+            handleChange={handleChange}
+          />
         </section>
       )}
     </main>

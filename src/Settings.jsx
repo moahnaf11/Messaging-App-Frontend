@@ -11,7 +11,6 @@ import { jwtDecode } from "jwt-decode";
 function Settings() {
   const { setisLoggedIn } = useOutletContext();
   const navigate = useNavigate();
-  // const [userPayload, setUserPayload] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
 
   function handleLogOut() {
@@ -27,8 +26,6 @@ function Settings() {
         console.log(token);
         if (token) {
           const decodedPayload = jwtDecode(token);
-          // setUserPayload(decodedPayload);
-
           const response = await fetch(
             `http://localhost:3000/profile/${decodedPayload.id}`,
             {
@@ -158,7 +155,9 @@ function Settings() {
         </div>
       </div>
       <div className="bg-red-400">
-        <Outlet context={{ userProfile, handleLogOut }}></Outlet>
+        <Outlet
+          context={{ userProfile, handleLogOut, setUserProfile }}
+        ></Outlet>
       </div>
     </main>
   );
