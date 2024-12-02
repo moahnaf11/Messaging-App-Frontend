@@ -6,6 +6,10 @@ function Dialog({
   formData,
   formError,
   handleChange,
+  profpicRef,
+  photoError,
+  handleFileChange,
+  fileInputRef,
 }) {
   return (
     <>
@@ -15,14 +19,14 @@ function Dialog({
       >
         <form
           noValidate
-          onSubmit={(e) => handleSubmit(e)}
+          onSubmit={(e) => handleSubmit(e, true)}
           onReset={handleReset}
           action="#"
           className="bg-white p-3 flex rounded-md flex-col gap-5"
         >
           <div className="flex justify-between items-center">
             <h2 className="font-custom font-bold text-lg">Update profile</h2>
-            <button type="button" onClick={closeDialog}>
+            <button type="button" onClick={() => closeDialog(true)}>
               <svg
                 className="size-7"
                 viewBox="0 0 24 24"
@@ -180,8 +184,12 @@ function Dialog({
       </dialog>
 
       {/* updating prof pic dialog*/}
-      <dialog className="md:min-w-[40%] min-w-[85%] self-center rounded-md">
+      <dialog
+        ref={profpicRef}
+        className="md:min-w-[40%] min-w-[85%] self-center rounded-md"
+      >
         <form
+          onSubmit={(e) => handleSubmit(e, false)}
           noValidate
           action="#"
           enctype="multipart/form-data"
@@ -189,9 +197,9 @@ function Dialog({
         >
           <div className="flex justify-between items-center">
             <h2 className="font-custom font-bold text-lg">
-              Update Profile Picture
+              Upload Profile Picture
             </h2>
-            <button type="button" onClick={closeDialog}>
+            <button type="button" onClick={() => closeDialog(false)}>
               <svg
                 className="size-7"
                 viewBox="0 0 24 24"
@@ -245,7 +253,14 @@ function Dialog({
               </svg>
             </button>
           </div>
-          <input type="file" name="profilepic" />
+          <input
+            className="max-w-max"
+            type="file"
+            ref={fileInputRef}
+            name="profilepic"
+            onChange={(e) => handleFileChange(e)}
+          />
+          <span className="text-red-600">{photoError}</span>
           <div className="flex">
             <button
               type="submit"

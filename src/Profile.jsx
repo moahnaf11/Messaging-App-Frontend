@@ -5,6 +5,11 @@ import Dialog from "./Dialog";
 function Profile() {
   const { userProfile, setUserProfile } = useOutletContext();
   const dialogRef = useRef(null);
+  const profpicRef = useRef(null);
+  const fileInputRef = useRef(null);
+  // const [photo, setPhoto] = useState(null);
+  const [photoError, setPhotoError] = useState(null);
+  const [filedoc, setFiledoc] = useState(null);
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -29,6 +34,10 @@ function Profile() {
       [name]: value,
     }));
     validateField(e.target);
+  };
+
+  const handleFileChange = (e) => {
+    setFiledoc(e.target.files[0]);
   };
 
   function validateField(input) {
@@ -58,27 +67,37 @@ function Profile() {
   }
 
   // Function to open the dialog
-  const openDialog = () => {
-    setFormData({
-      firstname: userProfile.firstname,
-      lastname: userProfile.lastname,
-      email: userProfile.email,
-      username: userProfile.username,
-      bio: userProfile.status || "",
-    });
-    dialogRef.current.showModal();
+  const openDialog = (selectDialog) => {
+    if (selectDialog) {
+      setFormData({
+        firstname: userProfile.firstname,
+        lastname: userProfile.lastname,
+        email: userProfile.email,
+        username: userProfile.username,
+        bio: userProfile.status || "",
+      });
+      dialogRef.current.showModal();
+      return;
+    }
+    profpicRef.current.showModal();
   };
 
   // Function to close the dialog
-  const closeDialog = () => {
-    setFormError({
-      firstname: null,
-      lastname: null,
-      email: null,
-      username: null,
-      bio: null,
-    });
-    dialogRef.current.close();
+  const closeDialog = (selectDialog) => {
+    if (selectDialog) {
+      setFormError({
+        firstname: null,
+        lastname: null,
+        email: null,
+        username: null,
+        bio: null,
+      });
+      dialogRef.current.close();
+      return;
+    }
+    profpicRef.current.close();
+    setPhotoError(null);
+    fileInputRef.current.value = "";
   };
 
   function handleReset() {
@@ -99,53 +118,128 @@ function Profile() {
     });
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e, selectDialog) {
     e.preventDefault();
     if (!e.target.checkValidity()) {
       return;
     }
-    closeDialog();
+    if (selectDialog) {
+      closeDialog(selectDialog);
+    }
+    if (selectDialog) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:3000/profile/${userProfile.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              firstname: formData.firstname,
+              lastname: formData.lastname,
+              username: formData.username,
+              email: formData.email,
+              bio: formData.bio,
+            }),
+          }
+        );
+        if (!response.ok) {
+          const data = await response.json();
+          console.log("failed to update user profile", data);
+          return;
+        }
+        const data = await response.json();
+        setUserProfile(data);
+      } catch (error) {
+        console.log("failed to update user profile details", error);
+      }
+      return;
+    }
+    // send fetch for profile picture details
     try {
       const token = localStorage.getItem("token");
+      const photoFile = new FormData();
+
+      // Append the file and other fields (if necessary) to the FormData object
+      photoFile.append("profilepic", filedoc);
       const response = await fetch(
-        `http://localhost:3000/profile/${userProfile.id}`,
+        `http://localhost:3000/profile/${userProfile.id}/upload-photo`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            firstname: formData.firstname,
-            lastname: formData.lastname,
-            username: formData.username,
-            email: formData.email,
-            bio: formData.bio,
-          }),
+          body: photoFile,
         }
       );
       if (!response.ok) {
         const data = await response.json();
-        console.log("failed to update user profile", data);
+        setPhotoError(data.error);
         return;
       }
       const data = await response.json();
       setUserProfile(data);
-    } catch (error) {}
+      console.log("pic uploaded", data);
+      closeDialog(selectDialog);
+    } catch (error) {
+      console.log("failed to update user profile details", error);
+    }
+  }
+
+  async function deleteProfPic() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/profile/${userProfile.id}/upload-photo`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to delete profile picture", data);
+        return;
+      }
+      const data = await response.json();
+      setUserProfile(data);
+      console.log("pic deleted", data);
+    } catch (error) {
+      console.log("failed to delete prof pic", error);
+    }
   }
 
   return (
     <main className="min-h-screen p-3 text-white flex flex-col gap-5">
       <h2 className="font-custom font-bold text-lg">My Profile</h2>
       <section className="flex items-center justify-between outline outline-2 outline-white">
-        <div className="flex items-center gap-5">
-          <img className="rounded-full" src="https://placehold.co/200" alt="" />
+        <div className="flex relative items-center gap-5 w-[200px] h-[200px] rounded-full">
+          <div className={`${userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"} size-10 rounded-full absolute bottom-0 right-0`}></div>
+          {userProfile && userProfile.profilePicture ? (
+            <img
+              className="rounded-full h-full object-cover"
+              src={userProfile.profilePicture}
+              alt="users profile picture"
+            />
+          ) : (
+            <img
+              className="rounded-full h-full object-cover"
+              src="/default.jpg"
+              alt="default profile pic"
+            />
+          )}
           <div className="text-lg">
             {userProfile ? userProfile.username : null}
           </div>
         </div>
         <div className="flex gap-4 items-center">
-          <button>
+          <button onClick={() => openDialog(false)}>
             <svg
               className="size-7"
               viewBox="0 0 24 24"
@@ -177,7 +271,7 @@ function Profile() {
               </g>
             </svg>
           </button>
-          <button>
+          <button onClick={deleteProfPic}>
             <svg
               className="size-7"
               viewBox="0 0 24 24"
@@ -237,7 +331,7 @@ function Profile() {
         <section className="flex flex-col min-h-screen gap-3">
           <div className="flex items-center justify-between">
             <h2 className="font-bold font-custom text-lg">Details</h2>
-            <button onClick={openDialog}>
+            <button onClick={() => openDialog(true)}>
               <svg
                 className="size-7"
                 viewBox="0 0 24 24"
@@ -295,12 +389,17 @@ function Profile() {
           {/* dialog */}
           <Dialog
             dialogRef={dialogRef}
+            profpicRef={profpicRef}
+            // photo={photo}
+            photoError={photoError}
             handleSubmit={handleSubmit}
             handleReset={handleReset}
             formError={formError}
             formData={formData}
             closeDialog={closeDialog}
             handleChange={handleChange}
+            handleFileChange={handleFileChange}
+            fileInputRef={fileInputRef}
           />
         </section>
       )}

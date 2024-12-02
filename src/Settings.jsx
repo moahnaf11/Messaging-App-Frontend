@@ -115,9 +115,17 @@ function Settings() {
           >
             Change Password
           </NavLink>
+
+          <button className="p-3 font-custom font-bold flex justify-between items-center">Online
+            <input className="peer hidden" type="checkbox" id="check" />
+            <label
+              className="peer-checked:bg-green-600 flex peer-checked:justify-end h-11 w-24 peer-checked:flex rounded-full relative before:absolute before:content-[''] before:w-11 before:h-9 before:rounded-full before:m-1 before:bg-white outline outline-2 outline-red-200"
+              htmlFor="check"
+            ></label>
+          </button>
           <button
             onClick={handleLogOut}
-            className="p-3 flex items-center justify-between  font-custom font-bold hover:bg-white hover:text-black "
+            className="p-3 flex items-center justify-between font-custom font-bold hover:bg-white hover:text-black "
           >
             Log Out
             <svg
