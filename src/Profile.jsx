@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import Dialog from "./Dialog";
 
 function Profile() {
-  const { userProfile, setUserProfile } = useOutletContext();
+  const { userProfile, setUserProfile, handleLogOut } = useOutletContext();
   const dialogRef = useRef(null);
   const profpicRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -215,25 +215,59 @@ function Profile() {
     }
   }
 
+  async function deleteAccount() {
+    const delAcc = confirm(
+      "Are you sure you want to delete your account? This action can't be reversed!"
+    );
+    if (!delAcc) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/profile/${userProfile.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to delete users account", data);
+        return;
+      }
+      const data = await response.json();
+      setUserProfile(null);
+      console.log("user account deleted", data);
+      handleLogOut();
+    } catch (error) {
+      console.log("failed in fetch to delete users account", error);
+    }
+  }
+
   return (
     <main className="min-h-screen p-3 text-white flex flex-col gap-5">
       <h2 className="font-custom font-bold text-lg">My Profile</h2>
-      <section className="flex items-center justify-between outline outline-2 outline-white">
-        <div className="flex relative items-center gap-5 w-[200px] h-[200px] rounded-full">
-          <div className={`${userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"} size-10 rounded-full absolute bottom-0 right-0`}></div>
-          {userProfile && userProfile.profilePicture ? (
-            <img
-              className="rounded-full h-full object-cover"
-              src={userProfile.profilePicture}
-              alt="users profile picture"
-            />
-          ) : (
-            <img
-              className="rounded-full h-full object-cover"
-              src="/default.jpg"
-              alt="default profile pic"
-            />
-          )}
+      <section className="flex items-center justify-between">
+        <div className="flex relative items-center gap-5 w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
+          <div
+            className={`${
+              userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"  
+            } lg:size-8 md:size-6 size-5 rounded-full absolute bottom-0 right-0`}
+          ></div>
+
+          <img
+            className="rounded-full h-full object-cover"
+            src={
+              userProfile && userProfile.profilePicture
+                ? userProfile.profilePicture
+                : "/default.jpg"
+            }
+            alt="users profile picture"
+          />
           <div className="text-lg">
             {userProfile ? userProfile.username : null}
           </div>
@@ -386,6 +420,15 @@ function Profile() {
             <div className="font-custom font-bold">Status</div>
             <div>{userProfile.status}</div>
           </div>
+
+          {/* delete users account */}
+          <button
+            onClick={deleteAccount}
+            className="px-3 py-2 mt-auto max-w-max border-2 border-red-500 font-custom font-bold text-white bg-red-500 hover:bg-transparent hover:text-red-500"
+          >
+            Delete Account
+          </button>
+
           {/* dialog */}
           <Dialog
             dialogRef={dialogRef}

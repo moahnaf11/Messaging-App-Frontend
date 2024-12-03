@@ -5,7 +5,7 @@ import {
   useOutletContext,
   Outlet,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 
 function Settings() {
@@ -54,12 +54,40 @@ function Settings() {
 
     fetchUserProfile();
   }, []);
+
+  async function handleOnline(e) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/profile/${userProfile.id}/online-status`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ online: e.target.checked }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to update user online status", data);
+        return;
+      }
+      const data = await response.json();
+      console.log("updated user online status", data);
+      setUserProfile(data);
+    } catch (err) {
+      console.log("failed in fetch request to update online status", err);
+    }
+  }
   return (
-    <main className="min-h-screen p-3 bg-gray-800 text-white grid grid-cols-[1fr_2fr] gap-4">
-      <div className="p-3 grid grid-cols-1 auto-rows-min gap-16">
+    <main className="min-h-screen p-3 bg-gray-800 text-white grid lg:grid-cols-[1fr_2fr] md:grid-cols-[1fr_3fr] gap-4">
+      <div className="p-3 border-r-2 border-white grid grid-cols-1 auto-rows-min gap-16">
         <div>
           <Link
-            className="font-custom flex items-center gap-4 font-bold"
+            className="font-custom flex items-center gap-4 font-bold md:text-[12px] lg:text-[16px]"
             to="/"
           >
             <svg
@@ -105,27 +133,43 @@ function Settings() {
         <div className="flex flex-col">
           <NavLink
             to="/settings"
-            className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block "
+            end
+            className={({ isActive }) =>
+              isActive
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+            }
           >
             Profile
           </NavLink>
           <NavLink
             to="change-password"
-            className="p-3 font-custom font-bold hover:bg-white hover:text-black inline-block "
+            className={({ isActive }) =>
+              isActive
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+            }
           >
             Change Password
           </NavLink>
 
-          <button className="p-3 font-custom font-bold flex justify-between items-center">Online
-            <input className="peer hidden" type="checkbox" id="check" />
+          <button className="border-l-4 border-gray-800 p-3 font-custom font-bold flex justify-between items-center md:text-[12px] lg:text-[16px]">
+            Online
+            <input
+              onChange={(e) => handleOnline(e)}
+              checked={userProfile && userProfile.online ? true : false}
+              className="peer hidden"
+              type="checkbox"
+              id="check"
+            />
             <label
-              className="peer-checked:bg-green-600 flex peer-checked:justify-end h-11 w-24 peer-checked:flex rounded-full relative before:absolute before:content-[''] before:w-11 before:h-9 before:rounded-full before:m-1 before:bg-white outline outline-2 outline-red-200"
+              className="peer-checked:bg-green-600 flex items-center peer-checked:justify-end lg:h-8 h-5 lg:w-16 w-12 peer-checked:flex rounded-full relative before:absolute before:content-[''] before:lg:w-7 before:lg:h-6 before:w-5 before:h-4 before:rounded-full before:m-1 before:bg-white outline outline-2 outline-red-200"
               htmlFor="check"
             ></label>
           </button>
           <button
             onClick={handleLogOut}
-            className="p-3 flex items-center justify-between font-custom font-bold hover:bg-white hover:text-black "
+            className="border-l-4 border-gray-800 p-3 flex items-center justify-between font-custom font-bold hover:bg-gray-700 md:text-[12px] lg:text-[16px]"
           >
             Log Out
             <svg
@@ -162,7 +206,7 @@ function Settings() {
           </button>
         </div>
       </div>
-      <div className="bg-red-400">
+      <div className="bg-gray-700">
         <Outlet
           context={{ userProfile, handleLogOut, setUserProfile }}
         ></Outlet>
