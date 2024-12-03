@@ -13,6 +13,7 @@ import AuthRoute from "./AuthRoute.jsx";
 import Settings from "./Settings.jsx";
 import Profile from "./Profile.jsx";
 import ChangePassword from "./ChangePassword.jsx";
+import Friends from "./Friends.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,16 @@ const router = createBrowserRouter([
             <Chat />
           </AuthRoute>
         ),
+      },
+      // children of Chat
+      {
+        path: "friends",
+        element: (
+          <AuthRoute>
+            <Chat />
+          </AuthRoute>
+        ),
+        children: [{ index: true, element: <Friends /> }],
       },
       {
         path: "settings",
