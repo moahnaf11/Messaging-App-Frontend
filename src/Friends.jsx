@@ -43,7 +43,6 @@ function Friends() {
     if (!e.target.checkValidity()) {
       return;
     }
-    closeDialog();
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:3000/friend/request`, {
@@ -52,16 +51,18 @@ function Friends() {
           Authorization: `Bearer ${token}`, // Pass the token for authentication
           "Content-Type": "application/json",
         },
-        body, // add requesteeId
+        body: JSON.stringify({ username: addusername }),
       });
       if (!response.ok) {
         const data = await response.json();
+        setUsernameError(data.error);
         console.log("failed to send friend request", data);
         return;
       }
       const data = await response.json();
       console.log("friend req sent successfully", data);
       getFriends();
+      closeDialog();
     } catch (err) {
       console.log("Error in fetch for sending friend req", err);
     }
