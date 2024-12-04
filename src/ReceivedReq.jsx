@@ -1,11 +1,38 @@
 import { useOutletContext } from "react-router-dom";
 function ReceivedReq() {
-  const { friends, mydata, getUser } = useOutletContext();
+  const { friends, mydata, getUser, getFriends } = useOutletContext();
   const pendingRequests = friends
     ? friends.filter((friend) => {
         return friend.requestee.id === mydata.id && friend.status === "pending";
       })
     : null;
+
+  async function acceptRejectRequest(friendId, handleRequest) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/friend/request/${friendId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ handleRequest }),
+        }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to accept/reject request", data);
+        return;
+      }
+      const data = await response.json();
+      console.log("accepted/rejected request successfully", data);
+      getFriends();
+    } catch (err) {
+      console.log("Error in fetch for accepting/rejecting friend request", err);
+    }
+  }
 
   return (
     <>
@@ -38,7 +65,12 @@ function ReceivedReq() {
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="px-2 py-1 rounded-full hover:bg-gray-700">
+                  <button
+                    onClick={() => {
+                      acceptRejectRequest(friend.id, "accepted");
+                    }}
+                    className="px-2 py-1 rounded-full hover:bg-gray-700"
+                  >
                     <svg
                       className="size-9"
                       viewBox="0 0 24 24"
@@ -65,7 +97,12 @@ function ReceivedReq() {
                       </g>
                     </svg>
                   </button>
-                  <button className="px-2 py-1 rounded-full hover:bg-gray-700">
+                  <button
+                    onClick={() => {
+                      acceptRejectRequest(friend.id, "rejected");
+                    }}
+                    className="px-2 py-1 rounded-full hover:bg-gray-700"
+                  >
                     <svg
                       className="size-8"
                       version="1.1"
