@@ -15,6 +15,11 @@ import Profile from "./Profile.jsx";
 import ChangePassword from "./ChangePassword.jsx";
 import Friends from "./Friends.jsx";
 import ListFriends from "./ListFriends.jsx";
+import OnlineFriends from "./OnlineFriends.jsx";
+import Requests from "./Requests.jsx";
+import Blocked from "./Blocked.jsx";
+import SentReq from "./SentReq.jsx";
+import ReceivedReq from "./ReceivedReq.jsx";
 
 const router = createBrowserRouter([
   {
@@ -43,9 +48,16 @@ const router = createBrowserRouter([
             element: <Friends />, // Parent route
             children: [
               { index: true, element: <ListFriends /> },
-              { path: "online", element: <ListFriends /> },
-              { path: "requests", element: <ListFriends /> },
-              { path: "blocked", element: <ListFriends /> },
+              { path: "online", element: <OnlineFriends /> },
+              {
+                path: "requests",
+                element: <Requests />,
+                children: [
+                  { index: true, element: <SentReq /> },
+                  { path: "received", element: <ReceivedReq /> },
+                ],
+              },
+              { path: "blocked", element: <Blocked /> },
             ],
           },
         ],

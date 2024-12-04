@@ -5,32 +5,61 @@ import { Outlet, NavLink } from "react-router-dom";
 function Friends() {
   const [friends, setFriends] = useState(null);
   const [mydata, setMyData] = useState(null);
+  const getUser = (friend) =>
+    friend.requestee.id === mydata.id ? friend.requester : friend.requestee;
 
-  useEffect(() => {
-    async function getFriends() {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3000/friend`, {
-          method: "GET",
+  async function getFriends() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3000/friend`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("no friends found", data);
+        setFriends([]);
+        return;
+      }
+      const data = await response.json();
+      console.log("all my friends", data);
+      setFriends(data);
+    } catch (err) {
+      console.log("failed in fetch friends", err);
+    }
+  }
+
+  async function blockUser(friendId, handleBlock) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/friend/request/block/${friendId}`,
+        {
+          method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
             "Content-Type": "application/json",
           },
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          console.log("no friends found", data);
-          setFriends([]);
-          return;
+          body: JSON.stringify({ handleBlock }),
         }
+      );
+      if (!response.ok) {
         const data = await response.json();
-        console.log("all my friends", data);
-        setFriends(data);
-      } catch (err) {
-        console.log("failed in fetch friends", err);
+        return;
       }
+      const data = await response.json();
+      console.log("blocked/unblocked user", data);
+      getFriends();
+    } catch (err) {
+      console.error("Error in fetch for blocking user", err);
     }
+  }
+
+  useEffect(() => {
     getFriends();
   }, []);
 
@@ -94,7 +123,6 @@ function Friends() {
           </NavLink>
           <NavLink
             to="/friends/requests"
-            end
             className={({ isActive }) =>
               isActive
                 ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
@@ -118,7 +146,16 @@ function Friends() {
       </section>
 
       <section className="flex flex-col">
-        <Outlet context={{ friends, mydata, setFriends }} />
+        <Outlet
+          context={{
+            friends,
+            mydata,
+            setFriends,
+            getUser,
+            blockUser,
+            getFriends,
+          }}
+        />
       </section>
     </main>
   );
