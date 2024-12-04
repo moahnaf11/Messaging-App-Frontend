@@ -76,7 +76,7 @@ function Chat() {
           placeholder="search chats"
         />
       </section>
-      <div className="bg-red-500 p-3">
+      <div className="p-3">
         <Outlet />
       </div>
     </main>
