@@ -210,25 +210,6 @@ function ListFriends() {
       ) : (
         <div className="font-custom font-bold">No friends yet</div>
       )}
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
-      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
     </>
   );
 }
