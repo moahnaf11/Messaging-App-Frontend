@@ -1,25 +1,46 @@
 import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
 
 function ListFriends() {
-  const { friends, getUser, blockUser } = useOutletContext();
+  const { friends, getUser, blockUser, deleteFriend } = useOutletContext();
+  const [search, setSearch] = useState("");
+
+  function handleSearch(e) {
+    setSearch(e.target.value);
+  }
 
   return (
     <>
+      <input
+        className="bg-gray-900 px-2 py-1 min-w-[50%] text-center mb-5 mx-auto rounded-full text-gray-400"
+        type="text"
+        onChange={(e) => handleSearch(e)}
+        value={search}
+        placeholder="search"
+      />
       {/* all friends */}
       {friends && friends.length > 0 ? (
         friends
           .filter((friend) => {
             return friend.status === "accepted";
           })
+          .filter((friend) => {
+            const user = getUser(friend);
+            // If search is not empty, filter by username
+            if (search) {
+              return user.username.toLowerCase().includes(search.toLowerCase());
+            }
+            return true; // If search is empty, include all
+          })
           .map((friend) => {
             const user = getUser(friend);
             return (
               <div
-                className="flex outline outline-2 outline-red-200 items-center p-3 justify-between"
+                className="flex items-center p-3 justify-between"
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="relative w-[70px] h-[70px]">
+                  <div className="relative w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -30,7 +51,7 @@ function ListFriends() {
                       alt="profile picture"
                     />
                     <div
-                      className={`size-5 absolute bottom-0 right-0 rounded-full ${
+                      className={`lg:size-5 size-4 absolute bottom-0 right-0 rounded-full ${
                         user.online ? "bg-green-600" : "bg-gray-500"
                       } `}
                     ></div>
@@ -63,7 +84,7 @@ function ListFriends() {
                       </g>
                     </svg>
                   </button>
-                  <button>
+                  <button onClick={() => deleteFriend(friend.id)}>
                     <svg
                       className="size-7"
                       viewBox="0 0 24 24"
@@ -189,6 +210,25 @@ function ListFriends() {
       ) : (
         <div className="font-custom font-bold">No friends yet</div>
       )}
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
+      <div className="outline outline-2 outline-red-600 p-3 min-h-11"></div>
     </>
   );
 }

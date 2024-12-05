@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useMediaQuery } from "react-responsive";
 import { Outlet, NavLink } from "react-router-dom";
 
 function Friends() {
@@ -8,6 +9,7 @@ function Friends() {
   const [addusername, setaddusername] = useState("");
   const [usernameError, setUsernameError] = useState(null);
   const addFriend = useRef(null);
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
   const openDialog = () => {
     addFriend.current.showModal();
@@ -65,6 +67,40 @@ function Friends() {
       closeDialog();
     } catch (err) {
       console.log("Error in fetch for sending friend req", err);
+    }
+  }
+
+  async function deleteFriend(friendId) {
+    const isDelete = confirm(
+      "Are you sure you want to remove this friend? This action can't be undone"
+    );
+    if (!isDelete) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/friend/request/${friendId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("failed to delete friend", data);
+        setFriends([]);
+        return;
+      }
+      const data = await response.json();
+      console.log("deleted friend successfully", data);
+      getFriends();
+    } catch (err) {
+      console.log("failed in fetch to delete friend", err);
     }
   }
   async function getFriends() {
@@ -129,6 +165,37 @@ function Friends() {
   }, []);
   return (
     <main className="flex flex-col gap-3">
+      {isMobile && (
+        <NavLink
+          className="font-custom flex items-center text-sm gap-4 font-bold"
+          to="/"
+        >
+          <svg
+            className="size-6"
+            viewBox="0 0 1024 1024"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="#ffffff"
+          >
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                fill="#ffffff"
+                d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
+              ></path>
+              <path
+                fill="#ffffff"
+                d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
+              ></path>
+            </g>
+          </svg>
+          to chats
+        </NavLink>
+      )}
       <section className="flex flex-col gap-3">
         <div className="flex justify-between">
           <h1 className="flex items-center gap-4 font-custom font-bold">
@@ -171,8 +238,8 @@ function Friends() {
             end
             className={({ isActive }) =>
               isActive
-                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[12px] lg:text-[16px]"
             }
           >
             All
@@ -182,8 +249,8 @@ function Friends() {
             end
             className={({ isActive }) =>
               isActive
-                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[12px] lg:text-[16px]"
             }
           >
             Online
@@ -192,8 +259,8 @@ function Friends() {
             to="/friends/requests"
             className={({ isActive }) =>
               isActive
-                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[12px] lg:text-[16px]"
             }
           >
             Requests
@@ -203,8 +270,8 @@ function Friends() {
             end
             className={({ isActive }) =>
               isActive
-                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+                ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[12px] lg:text-[16px]"
+                : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[12px] lg:text-[16px]"
             }
           >
             Blocked
@@ -310,7 +377,7 @@ function Friends() {
         </form>
       </dialog>
 
-      <section className="flex flex-col">
+      <section className="flex flex-col max-h-screen overflow-y-auto">
         <Outlet
           context={{
             friends,
@@ -319,6 +386,7 @@ function Friends() {
             getUser,
             blockUser,
             getFriends,
+            deleteFriend,
           }}
         />
       </section>

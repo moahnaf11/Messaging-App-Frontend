@@ -11,8 +11,8 @@ function Requests() {
           end
           className={({ isActive }) =>
             isActive
-              ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-              : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+              ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[11px] md:text-[12px] lg:text-[16px]"
+              : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[11px] md:text-[12px] lg:text-[16px]"
           }
         >
           Sent Requests
@@ -22,8 +22,8 @@ function Requests() {
           end
           className={({ isActive }) =>
             isActive
-              ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block md:text-[12px] lg:text-[16px]"
-              : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block md:text-[12px] lg:text-[16px]"
+              ? "p-3 font-custom font-bold bg-gray-700 border-l-4 border-blue-600 inline-block text-[11px] md:text-[12px] lg:text-[16px]"
+              : "p-3 font-custom font-bold bg-gray-800 border-l-4 border-gray-800 hover:bg-gray-700 inline-block text-[11px] md:text-[12px] lg:text-[16px]"
           }
         >
           Received Requests

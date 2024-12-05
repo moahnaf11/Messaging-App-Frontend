@@ -1,8 +1,16 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 
 function Chat() {
+  // location
+  const location = useLocation();
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+
+  const checkMobile = () => {
+    return isMobile && location.pathname === "/";
+  };
   return (
-    <main className="min-h-screen p-3 bg-gray-800 text-white grid md:grid-cols-[1fr_2fr] gap-4">
+    <main className="relative min-h-screen p-3 bg-gray-800 text-white grid md:grid-cols-[1fr_2fr] gap-4">
       <section className="border-r-2 p-3 border-white flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h1 className="font-custom font-bold">chats</h1>
@@ -71,14 +79,16 @@ function Chat() {
           Friends
         </NavLink>
         <input
-          className="border-2 text-black border-black px-3 py-2 rounded-full"
+          className="border-2 border-black px-3 py-2 bg-gray-900 text-gray-400 rounded-full"
           type="text"
           placeholder="search chats"
         />
       </section>
-      <div className="p-3">
-        <Outlet />
-      </div>
+      {!checkMobile() && (
+        <div className={`p-3 ${isMobile ? "absolute inset-0 bg-gray-800" : null}`}>
+          <Outlet />
+        </div>
+      )}
     </main>
   );
 }

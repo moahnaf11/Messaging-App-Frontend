@@ -1,9 +1,27 @@
 import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
+
 function ReceivedReq() {
   const { friends, mydata, getUser, getFriends } = useOutletContext();
+
+  const [search, setSearch] = useState("");
+
+  function handleSearch(e) {
+    setSearch(e.target.value);
+  }
   const pendingRequests = friends
     ? friends.filter((friend) => {
-        return friend.requestee.id === mydata.id && friend.status === "pending";
+        const user = getUser(friend);
+        if (!search) {
+          return (
+            friend.requestee.id === mydata.id && friend.status === "pending"
+          );
+        }
+        return (
+          friend.requestee.id === mydata.id &&
+          friend.status === "pending" &&
+          user.username.toLowerCase().includes(search.toLowerCase())
+        );
       })
     : null;
 
@@ -36,17 +54,24 @@ function ReceivedReq() {
 
   return (
     <>
+      <input
+        className="bg-gray-900 px-2 py-1 min-w-[50%] text-center mb-5 mx-auto rounded-full text-gray-400"
+        type="text"
+        onChange={(e) => handleSearch(e)}
+        value={search}
+        placeholder="search"
+      />
       {pendingRequests && pendingRequests.length > 0 ? (
         pendingRequests.map((friend) => {
           const user = getUser(friend);
           if (user.online) {
             return (
               <div
-                className="flex outline outline-2 outline-red-200 items-center p-3 justify-between"
+                className="flex items-center p-3 justify-between"
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="relative w-[70px] h-[70px]">
+                  <div className="w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -56,11 +81,6 @@ function ReceivedReq() {
                       }
                       alt="profile picture"
                     />
-                    <div
-                      className={`size-5 absolute bottom-0 right-0 rounded-full ${
-                        user.online ? "bg-green-600" : "bg-gray-500"
-                      } `}
-                    ></div>
                   </div>
                   <div>{user.username}</div>
                 </div>
