@@ -1,14 +1,63 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 function Chat() {
   // location
   const location = useLocation();
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+  const [friends, setFriends] = useState(null);
+  const [mydata, setMyData] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const getUser = (friend) =>
+    friend.requestee.id === mydata.id ? friend.requester : friend.requestee;
+  const acceptedFriends = friends
+    ? friends.filter((friend) => friend.status === "accepted")
+    : null;
 
   const checkMobile = () => {
     return isMobile && location.pathname === "/";
   };
+
+  function handleSearch(e) {
+    setSearch(e.target.value);
+  }
+
+  async function getFriends() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3000/friend`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log("no friends found", data);
+        setFriends([]);
+        return;
+      }
+      const data = await response.json();
+      console.log("all my friends", data);
+      setFriends(data);
+    } catch (err) {
+      console.log("failed in fetch friends", err);
+    }
+  }
+
+  useEffect(() => {
+    getFriends();
+  }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const data = jwtDecode(token);
+    setMyData(data);
+  }, []);
   return (
     <main className="relative min-h-screen p-3 bg-gray-800 text-white grid md:grid-cols-[1fr_2fr] gap-4">
       <section className="border-r-2 p-3 border-white flex flex-col gap-3">
@@ -81,12 +130,70 @@ function Chat() {
         <input
           className="border-2 border-black px-3 py-2 bg-gray-900 text-gray-400 rounded-full"
           type="text"
+          value={search}
+          onChange={(e) => handleSearch(e)}
           placeholder="search chats"
         />
+        <section className="max-h-screen mt-3 overflow-y-auto">
+          {acceptedFriends && acceptedFriends.length > 0 ? (
+            acceptedFriends
+              .filter((friend) => {
+                const user = getUser(friend);
+                if (!search) {
+                  return true;
+                }
+                return user.username
+                  .toLowerCase()
+                  .includes(search.toLowerCase());
+              })
+              .map((friend) => {
+                const user = getUser(friend);
+                return (
+                  <NavLink
+                    to={`/chat/${friend.id}`}
+                    className={({ isActive }) =>
+                      `flex hover:bg-gray-700 outline outline-2 outline-red-200 items-center p-3 justify-between ${
+                        isActive
+                          ? "bg-gray-700 border-l-4 border-blue-600"
+                          : "bg-gray-800 border-l-4 border-gray-800"
+                      }`
+                    }
+                    key={friend.id}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]">
+                        <img
+                          className="rounded-full h-full object-cover"
+                          src={
+                            user.profilePicture
+                              ? user.profilePicture
+                              : "/default.jpg"
+                          }
+                          alt="profile picture"
+                        />
+                        <div
+                          className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
+                            user.online ? "bg-green-600" : "bg-gray-500"
+                          } `}
+                        ></div>
+                      </div>
+                      <div>{user.username}</div>
+                    </div>
+                  </NavLink>
+                );
+              })
+          ) : (
+            <div className="font-bold font-custom">No chats</div>
+          )}
+        </section>
       </section>
       {!checkMobile() && (
-        <div className={`p-3 ${isMobile ? "absolute inset-0 bg-gray-800" : null}`}>
-          <Outlet />
+        <div
+          className={`p-3 ${isMobile ? "absolute inset-0 bg-gray-800" : null}`}
+        >
+          <Outlet
+            context={{ friends, setFriends, getUser, mydata, getFriends }}
+          />
         </div>
       )}
     </main>

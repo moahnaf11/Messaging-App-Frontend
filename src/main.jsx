@@ -20,6 +20,7 @@ import Requests from "./Requests.jsx";
 import Blocked from "./Blocked.jsx";
 import SentReq from "./SentReq.jsx";
 import ReceivedReq from "./ReceivedReq.jsx";
+import Conversation from "./Conversation.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,25 +28,17 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        index: true,
-        element: (
-          <AuthRoute>
-            <Chat />
-          </AuthRoute>
-        ),
-      },
-      // children of Chat
-      {
-        path: "friends",
+        path: "",
         element: (
           <AuthRoute>
             <Chat />
           </AuthRoute>
         ),
         children: [
+          { path: "chat/:id", element: <Conversation /> },
           {
-            path: "",
-            element: <Friends />, // Parent route
+            path: "friends",
+            element: <Friends />,
             children: [
               { index: true, element: <ListFriends /> },
               { path: "online", element: <OnlineFriends /> },

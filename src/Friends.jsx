@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { useMediaQuery } from "react-responsive";
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useOutletContext } from "react-router-dom";
 
 function Friends() {
-  const [friends, setFriends] = useState(null);
-  const [mydata, setMyData] = useState(null);
+  const { friends, setFriends, getUser, mydata, getFriends } = useOutletContext();
+  // const [friends, setFriends] = useState(null);
+  // const [mydata, setMyData] = useState(null);
   const [addusername, setaddusername] = useState("");
   const [usernameError, setUsernameError] = useState(null);
   const addFriend = useRef(null);
@@ -21,8 +22,8 @@ function Friends() {
     addFriend.current.close();
   };
 
-  const getUser = (friend) =>
-    friend.requestee.id === mydata.id ? friend.requester : friend.requestee;
+  // const getUser = (friend) =>
+  //   friend.requestee.id === mydata.id ? friend.requester : friend.requestee;
 
   function handleUsername(e) {
     setaddusername((prev) => e.target.value);
@@ -103,30 +104,30 @@ function Friends() {
       console.log("failed in fetch to delete friend", err);
     }
   }
-  async function getFriends() {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/friend`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+  // async function getFriends() {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await fetch(`http://localhost:3000/friend`, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
 
-      if (!response.ok) {
-        const data = await response.json();
-        console.log("no friends found", data);
-        setFriends([]);
-        return;
-      }
-      const data = await response.json();
-      console.log("all my friends", data);
-      setFriends(data);
-    } catch (err) {
-      console.log("failed in fetch friends", err);
-    }
-  }
+  //     if (!response.ok) {
+  //       const data = await response.json();
+  //       console.log("no friends found", data);
+  //       setFriends([]);
+  //       return;
+  //     }
+  //     const data = await response.json();
+  //     console.log("all my friends", data);
+  //     setFriends(data);
+  //   } catch (err) {
+  //     console.log("failed in fetch friends", err);
+  //   }
+  // }
 
   async function blockUser(friendId, handleBlock) {
     try {
@@ -154,15 +155,11 @@ function Friends() {
     }
   }
 
-  useEffect(() => {
-    getFriends();
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const data = jwtDecode(token);
-    setMyData(data);
-  }, []);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   const data = jwtDecode(token);
+  //   setMyData(data);
+  // }, []);
   return (
     <main className="flex flex-col gap-3">
       {isMobile && (
