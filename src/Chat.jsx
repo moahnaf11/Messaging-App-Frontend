@@ -189,7 +189,7 @@ function Chat() {
       </section>
       {!checkMobile() && (
         <div
-          className={`p-3 ${isMobile ? "absolute inset-0 bg-gray-800" : null}`}
+          className={`p-3 ${isMobile ? "absolute inset-0 bg-gray-800" : ""}`}
         >
           <Outlet
             context={{ friends, setFriends, getUser, mydata, getFriends }}

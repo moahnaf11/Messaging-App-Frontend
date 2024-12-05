@@ -4,9 +4,9 @@ import { useMediaQuery } from "react-responsive";
 import { Outlet, NavLink, useOutletContext } from "react-router-dom";
 
 function Friends() {
-  const { friends, setFriends, getUser, mydata, getFriends } = useOutletContext();
-  // const [friends, setFriends] = useState(null);
-  // const [mydata, setMyData] = useState(null);
+  const { friends, setFriends, getUser, mydata, getFriends } =
+    useOutletContext();
+
   const [addusername, setaddusername] = useState("");
   const [usernameError, setUsernameError] = useState(null);
   const addFriend = useRef(null);
@@ -21,10 +21,6 @@ function Friends() {
     setaddusername("");
     addFriend.current.close();
   };
-
-  // const getUser = (friend) =>
-  //   friend.requestee.id === mydata.id ? friend.requester : friend.requestee;
-
   function handleUsername(e) {
     setaddusername((prev) => e.target.value);
     if (!e.target.checkValidity()) {
@@ -104,30 +100,6 @@ function Friends() {
       console.log("failed in fetch to delete friend", err);
     }
   }
-  // async function getFriends() {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await fetch(`http://localhost:3000/friend`, {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       const data = await response.json();
-  //       console.log("no friends found", data);
-  //       setFriends([]);
-  //       return;
-  //     }
-  //     const data = await response.json();
-  //     console.log("all my friends", data);
-  //     setFriends(data);
-  //   } catch (err) {
-  //     console.log("failed in fetch friends", err);
-  //   }
-  // }
 
   async function blockUser(friendId, handleBlock) {
     try {
