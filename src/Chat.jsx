@@ -87,7 +87,7 @@ function Chat() {
       <section
         className={`${
           !isMobile ? "border-r-2 border-white" : ""
-        } p-3 min-h-screen flex flex-col gap-3 `}
+        } p-3 h-screen flex flex-col gap-3`}
       >
         <div className="flex items-center justify-between">
           <h1 className="font-custom font-bold">chats</h1>
@@ -162,7 +162,7 @@ function Chat() {
           onChange={(e) => handleSearch(e)}
           placeholder="search chats"
         />
-        <section className={`max-h-screen mt-3 overflow-y-auto `}>
+        <section className={`flex-1 mt-3 overflow-y-auto`}>
           {acceptedFriends && acceptedFriends.length > 0 ? (
             acceptedFriends
               .filter((friend) => {
@@ -177,43 +177,44 @@ function Chat() {
               .map((friend) => {
                 const user = getUser(friend);
                 return (
-                  <div className="flex p-3 gap-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openProfileDialog(user);
-                      }}
-                      className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]"
-                    >
-                      <img
-                        className="rounded-full h-full object-cover"
-                        src={
-                          user.profilePicture
-                            ? user.profilePicture
-                            : "/default.jpg"
-                        }
-                        alt="profile picture"
-                      />
-                      <div
-                        className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-                          user.online ? "bg-green-600" : "bg-gray-500"
-                        } `}
-                      ></div>
-                    </button>
-                    <NavLink
-                      to={`/chat/${friend.id}`}
-                      className={({ isActive }) =>
-                        `flex-1 flex hover:bg-gray-700 items-center p-3 ${
-                          isActive
-                            ? "bg-gray-700 border-l-4 border-blue-600"
-                            : "bg-gray-800 border-l-4 border-gray-800"
-                        }`
-                      }
-                      key={friend.id}
-                    >
+                  <NavLink
+                    to={`/chat/${friend.id}`}
+                    className={({ isActive }) =>
+                      `flex hover:bg-gray-700 outline outline-2 outline-red-200 items-center p-3 justify-between ${
+                        isActive
+                          ? "bg-gray-700 border-l-4 border-blue-600"
+                          : "bg-gray-800 border-l-4 border-gray-800"
+                      }`
+                    }
+                    key={friend.id}
+                  >
+                    <div className="flex items-center gap-5">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          openProfileDialog(user);
+                        }}
+                        className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]"
+                      >
+                        <img
+                          className="rounded-full h-full object-cover"
+                          src={
+                            user.profilePicture
+                              ? user.profilePicture
+                              : "/default.jpg"
+                          }
+                          alt="profile picture"
+                        />
+                        <div
+                          className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
+                            user.online ? "bg-green-600" : "bg-gray-500"
+                          } `}
+                        ></div>
+                      </button>
                       <div>{user.username}</div>
-                    </NavLink>
-                  </div>
+                    </div>
+                  </NavLink>
                 );
               })
           ) : (
@@ -247,7 +248,7 @@ function Chat() {
       </section>
       {!checkMobile() && (
         <div
-          className={`p-3 min-h-screen ${
+          className={`p-3 h-screen ${
             isMobile ? "absolute inset-0 bg-gray-800" : ""
           }`}
         >
@@ -273,3 +274,32 @@ function Chat() {
 }
 
 export default Chat;
+
+{
+  /* <NavLink
+  to={`/chat/${friend.id}`}
+  className={({ isActive }) =>
+    `flex hover:bg-gray-700 outline outline-2 outline-red-200 items-center p-3 justify-between ${
+      isActive
+        ? "bg-gray-700 border-l-4 border-blue-600"
+        : "bg-gray-800 border-l-4 border-gray-800"
+    }`
+  }
+  key={friend.id}
+>
+  <div className="flex items-center gap-5">
+    <div className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]">
+      <img
+        className="rounded-full h-full object-cover"
+        src={user.profilePicture ? user.profilePicture : "/default.jpg"}
+        alt="profile picture"
+      />
+      <div
+        className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
+          user.online ? "bg-green-600" : "bg-gray-500"
+        } `}
+      ></div>
+    </div>
+  </div>
+</NavLink>; */
+}

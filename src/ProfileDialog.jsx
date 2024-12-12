@@ -1,5 +1,4 @@
 function ProfileDialog({ user, profDialog, closeProfileDialog }) {
-  console.log(user);
   return (
     <>
       <dialog

@@ -15,6 +15,8 @@ function Conversation() {
   const [fileError, setFileError] = useState(null);
   const messageMediaDialog = useRef(null);
   const fileInputRef = useRef(null);
+  const imageDialog = useRef(null);
+  const [imageDisplay, setImageDisplay] = useState(null);
   const user = person
     ? person.requesterId === mydata.id
       ? person.requestee
@@ -211,7 +213,7 @@ function Conversation() {
     }
   }
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <section className="flex gap-5 sticky top-0 items-center bg-gray-800 mb-3">
         {isMobile && (
           <NavLink to="/">
@@ -259,7 +261,7 @@ function Conversation() {
         <div>{user ? user.username : null}</div>
       </section>
       {/* messages rendering */}
-      <section className="flex flex-col h-screen overflow-y-auto">
+      <section className="flex flex-col flex-1 max-h-screen overflow-y-auto">
         {groupedMessages ? (
           Object.keys(groupedMessages).map((date) => (
             <div key={date}>
@@ -276,7 +278,7 @@ function Conversation() {
                 return (
                   <div
                     key={message.id}
-                    className={`rounded-lg p-2 max-w-[45%] ${
+                    className={`rounded-lg p-2 max-w-[50%] ${
                       message.senderId === mydata.id
                         ? "bg-green-400 text-black ml-auto"
                         : "bg-white text-black mr-auto"
@@ -383,9 +385,20 @@ function Conversation() {
                       message.media.map((file) => {
                         if (file.type === "image") {
                           return (
-                            <div key={file.id}>
-                              <img src={file.url} alt="file" />
-                            </div>
+                            <button
+                              onClick={() => {
+                                setImageDisplay(file.url);
+                                imageDialog.current.showModal();
+                              }}
+                              className="inline-block"
+                              key={file.id}
+                            >
+                              <img
+                                className="object-cover w-full"
+                                src={file.url}
+                                alt="file"
+                              />
+                            </button>
                           );
                         } else if (file.type === "video") {
                           return (
@@ -451,7 +464,7 @@ function Conversation() {
             handleMessageSubmit(e, false);
           }
         }}
-        className="mt-auto flex sticky bottom-0 p-3 bg-gray-800 items-center outline outline-2 outline-red-200 justify-center gap-4"
+        className="mt-2 flex z-20 sticky bottom-0 p-3 bg-gray-800 items-center outline outline-2 outline-red-200 justify-center gap-4"
         action="#"
       >
         <button
@@ -611,20 +624,80 @@ function Conversation() {
           </div>
         </form>
       </dialog>
+      {/* image dialog */}
+      <dialog
+        className="md:w-[40%] p-3 w-[85%] h-[60%] self-center rounded-md"
+        ref={imageDialog}
+      >
+        <button
+          className="max-w-min mb-2 block ml-auto"
+          type="button"
+          onClick={() => {
+            setImageDisplay(null);
+            imageDialog.current.close();
+          }}
+        >
+          <svg
+            className="size-7"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></g>
+            <g id="SVGRepo_iconCarrier">
+              {" "}
+              <path
+                d="M10 12V17"
+                stroke="#000000"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>{" "}
+              <path
+                d="M14 12V17"
+                stroke="#000000"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>{" "}
+              <path
+                d="M4 7H20"
+                stroke="#000000"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>{" "}
+              <path
+                d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
+                stroke="#000000"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>{" "}
+              <path
+                d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+                stroke="#000000"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>{" "}
+            </g>
+          </svg>
+        </button>
+
+        <img
+          className="max-h-[85%] object-cover mx-auto"
+          src={imageDisplay ? imageDisplay : null}
+          alt=""
+        />
+      </dialog>
     </div>
   );
 }
 
 export default Conversation;
-
-{
-  /* <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div>
-        <div className="border-2 border-white min-h-36"></div> */
-}

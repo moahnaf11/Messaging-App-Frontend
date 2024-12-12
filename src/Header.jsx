@@ -1,6 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 
 function Header({ isLoggedIn }) {
+  const location = useLocation();
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+  const isChatPage = location.pathname.startsWith("/chat/");
+
+  // Do not render the Header if on /chat/:id and the layout is mobile
+  if (isChatPage && isMobile) {
+    return null;
+  }
   return (
     <header className="p-3 bg-gray-800 flex justify-between items-center z-20 sticky top-0">
       <div className="flex items-center gap-3">
