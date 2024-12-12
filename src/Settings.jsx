@@ -20,6 +20,8 @@ function Settings() {
   }
 
   useEffect(() => {
+    const controller = new AbortController(); // Create an AbortController
+    const signal = controller.signal;
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -30,6 +32,7 @@ function Settings() {
             `http://localhost:3000/profile/${decodedPayload.id}`,
             {
               method: "GET",
+              signal,
               headers: {
                 Authorization: `Bearer ${token}`, // Pass the token for authentication
                 "Content-Type": "application/json",
@@ -48,11 +51,18 @@ function Settings() {
           setUserProfile(data); // Store user profile data
         }
       } catch (error) {
+        if (err.name === "AbortError") {
+          console.log("Fetch request aborted");
+          return;
+        }
         console.error("Error fetching user profile:", error);
       }
     };
 
     fetchUserProfile();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   async function handleOnline(e) {

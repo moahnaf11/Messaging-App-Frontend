@@ -1,7 +1,7 @@
 import { useOutletContext, Outlet, NavLink } from "react-router-dom";
 
 function Requests() {
-  const { friends, getUser, mydata, getFriends } = useOutletContext();
+  const { friends, getUser, mydata, setFriends } = useOutletContext();
   // return requests
   return (
     <>
@@ -30,7 +30,7 @@ function Requests() {
         </NavLink>
       </nav>
       <section className="flex flex-col gap-4">
-        <Outlet context={{ friends, getUser, mydata, getFriends }} />
+        <Outlet context={{ friends, getUser, mydata, setFriends }} />
       </section>
     </>
   );

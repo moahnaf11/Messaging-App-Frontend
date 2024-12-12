@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-// import { jwtDecode } from "jwt-decode";
 import { useMediaQuery } from "react-responsive";
 import { Outlet, NavLink, useOutletContext } from "react-router-dom";
 
 function Friends() {
-  const { friends, setFriends, getUser, mydata, getFriends } =
-    useOutletContext();
+  const { friends, setFriends, getUser, mydata } = useOutletContext();
 
   const [addusername, setaddusername] = useState("");
   const [usernameError, setUsernameError] = useState(null);
@@ -60,7 +58,7 @@ function Friends() {
       }
       const data = await response.json();
       console.log("friend req sent successfully", data);
-      getFriends();
+      setFriends((prev) => [...prev, data]);
       closeDialog();
     } catch (err) {
       console.log("Error in fetch for sending friend req", err);
@@ -95,7 +93,7 @@ function Friends() {
       }
       const data = await response.json();
       console.log("deleted friend successfully", data);
-      getFriends();
+      setFriends((prev) => prev.filter((friend) => friend.id !== data.id));
     } catch (err) {
       console.log("failed in fetch to delete friend", err);
     }
@@ -121,17 +119,19 @@ function Friends() {
       }
       const data = await response.json();
       console.log("blocked/unblocked user", data);
-      getFriends();
+      setFriends((prev) => {
+        return prev.map((friend) => {
+          if (friend.id === data.id) {
+            return data;
+          } else {
+            return friend;
+          }
+        });
+      });
     } catch (err) {
       console.error("Error in fetch for blocking user", err);
     }
   }
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   const data = jwtDecode(token);
-  //   setMyData(data);
-  // }, []);
   return (
     <main className="flex flex-col gap-3">
       {isMobile && (
@@ -354,7 +354,6 @@ function Friends() {
             setFriends,
             getUser,
             blockUser,
-            getFriends,
             deleteFriend,
           }}
         />

@@ -1,9 +1,11 @@
 import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { ProfileDialogContext } from "./Chat";
 
 function SentReq() {
-  const { friends, mydata, getUser, getFriends } = useOutletContext();
+  const { friends, mydata, getUser, setFriends } = useOutletContext();
   const [search, setSearch] = useState("");
+  const { openProfileDialog } = useContext(ProfileDialogContext);
 
   function handleSearch(e) {
     setSearch(e.target.value);
@@ -45,7 +47,7 @@ function SentReq() {
       }
       const data = await response.json();
       console.log("deleted the friend request", data);
-      getFriends();
+      setFriends((prev) => prev.filter((friend) => friend.id !== data.id));
     } catch (err) {
       console.error("Error in fetch for cancelling friend request", err);
     }
@@ -69,7 +71,10 @@ function SentReq() {
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
+                  <button
+                    onClick={() => openProfileDialog(user)}
+                    className="w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]"
+                  >
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -79,7 +84,7 @@ function SentReq() {
                       }
                       alt="profile picture"
                     />
-                  </div>
+                  </button>
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">

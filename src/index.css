@@ -17,3 +17,7 @@ input:invalid:not(:placeholder-shown) {
   background-color: #d1d5db;
   opacity: 0.5;
 }
+
+/* html {
+  background-color: #1F2937;
+} */

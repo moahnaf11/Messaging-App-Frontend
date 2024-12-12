@@ -1,8 +1,10 @@
 import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { ProfileDialogContext } from "./Chat";
 
 function ReceivedReq() {
-  const { friends, mydata, getUser, getFriends } = useOutletContext();
+  const { friends, mydata, getUser, setFriends } = useOutletContext();
+  const { openProfileDialog } = useContext(ProfileDialogContext);
 
   const [search, setSearch] = useState("");
 
@@ -46,7 +48,15 @@ function ReceivedReq() {
       }
       const data = await response.json();
       console.log("accepted/rejected request successfully", data);
-      getFriends();
+      setFriends((prev) =>
+        prev.map((friend) => {
+          if (friend.id === data.id) {
+            return data;
+          } else {
+            return friend;
+          }
+        })
+      );
     } catch (err) {
       console.log("Error in fetch for accepting/rejecting friend request", err);
     }
@@ -71,7 +81,10 @@ function ReceivedReq() {
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
+                  <button
+                    onClick={() => openProfileDialog(user)}
+                    className="w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]"
+                  >
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -81,7 +94,7 @@ function ReceivedReq() {
                       }
                       alt="profile picture"
                     />
-                  </div>
+                  </button>
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">

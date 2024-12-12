@@ -1,9 +1,11 @@
-import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useOutletContext, NavLink } from "react-router-dom";
+import { useContext, useState } from "react";
+import { ProfileDialogContext } from "./Chat";
 
 function ListFriends() {
   const { friends, getUser, blockUser, deleteFriend } = useOutletContext();
   const [search, setSearch] = useState("");
+  const { openProfileDialog } = useContext(ProfileDialogContext);
 
   function handleSearch(e) {
     setSearch(e.target.value);
@@ -40,7 +42,10 @@ function ListFriends() {
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="relative w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
+                  <button
+                    onClick={() => openProfileDialog(user)}
+                    className="relative w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]"
+                  >
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -55,11 +60,11 @@ function ListFriends() {
                         user.online ? "bg-green-600" : "bg-gray-500"
                       } `}
                     ></div>
-                  </div>
+                  </button>
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button>
+                  <NavLink to={`/chat/${friend.id}`}>
                     <svg
                       className="size-7"
                       viewBox="0 0 24 24"
@@ -83,7 +88,7 @@ function ListFriends() {
                         ></path>{" "}
                       </g>
                     </svg>
-                  </button>
+                  </NavLink>
                   <button onClick={() => deleteFriend(friend.id)}>
                     <svg
                       className="size-7"
@@ -210,6 +215,30 @@ function ListFriends() {
       ) : (
         <div className="font-custom font-bold">No friends yet</div>
       )}
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
+      <div className="border-2 border-white min-h-40"></div>
     </>
   );
 }

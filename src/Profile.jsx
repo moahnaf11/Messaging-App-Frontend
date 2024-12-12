@@ -148,6 +148,17 @@ function Profile() {
         );
         if (!response.ok) {
           const data = await response.json();
+          if (data.error === "Username already exists") {
+            setFormError((prev) => ({
+              ...prev,
+              username: data.error,
+            }));
+          } else if (data.error === "Email already exists") {
+            setFormError((prev) => ({
+              ...prev,
+              email: data.error,
+            }));
+          }
           console.log("failed to update user profile", data);
           return;
         }
@@ -255,7 +266,7 @@ function Profile() {
         <div className="flex relative items-center gap-5 w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
           <div
             className={`${
-              userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"  
+              userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"
             } lg:size-8 md:size-6 size-5 rounded-full absolute bottom-0 right-0`}
           ></div>
 
@@ -433,7 +444,6 @@ function Profile() {
           <Dialog
             dialogRef={dialogRef}
             profpicRef={profpicRef}
-            // photo={photo}
             photoError={photoError}
             handleSubmit={handleSubmit}
             handleReset={handleReset}

@@ -1,9 +1,11 @@
-import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useOutletContext } from "react-router-dom";
+import { useState, useContext } from "react";
+import { ProfileDialogContext } from "./Chat";
 
 function OnlineFriends() {
   const { friends, getUser, blockUser, deleteFriend } = useOutletContext();
   const [search, setSearch] = useState("");
+  const { openProfileDialog } = useContext(ProfileDialogContext);
 
   const filteredFriends = friends
     ? friends.filter((friend) => {
@@ -43,7 +45,10 @@ function OnlineFriends() {
                 key={friend.id}
               >
                 <div className="flex items-center gap-5">
-                  <div className="relative w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]">
+                  <button
+                    onClick={() => openProfileDialog(user)}
+                    className="relative w-[50px] h-[50px] lg:w-[70px] lg:h-[70px]"
+                  >
                     <img
                       className="rounded-full h-full object-cover"
                       src={
@@ -58,11 +63,11 @@ function OnlineFriends() {
                         "lg:size-5 size-4 absolute bottom-0 right-0 rounded-full bg-green-600"
                       }
                     ></div>
-                  </div>
+                  </button>
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button>
+                  <NavLink to={`/chat/${friend.id}`}>
                     <svg
                       className="size-7"
                       viewBox="0 0 24 24"
@@ -86,7 +91,7 @@ function OnlineFriends() {
                         ></path>{" "}
                       </g>
                     </svg>
-                  </button>
+                  </NavLink>
                   <button onClick={() => deleteFriend(friend.id)}>
                     <svg
                       className="size-7"
