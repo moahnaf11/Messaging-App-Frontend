@@ -18,6 +18,6 @@ input:invalid:not(:placeholder-shown) {
   opacity: 0.5;
 }
 
-body {
+/* body {
   min-height: 100vh;
-} 
+}  */

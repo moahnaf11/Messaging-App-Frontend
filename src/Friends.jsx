@@ -133,7 +133,7 @@ function Friends() {
     }
   }
   return (
-    <main className="flex h-screen flex-col gap-3">
+    <main className="flex h-full flex-col gap-3">
       {isMobile && (
         <NavLink
           className="font-custom flex items-center text-sm gap-4 font-bold"
@@ -346,7 +346,7 @@ function Friends() {
         </form>
       </dialog>
 
-      <section className="flex flex-1 flex-col overflow-y-auto">
+      <section className="flex flex-1 min-h-0 flex-col overflow-y-auto">
         <Outlet
           context={{
             friends,

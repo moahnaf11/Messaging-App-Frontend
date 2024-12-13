@@ -214,7 +214,7 @@ function Conversation() {
   }
   return (
     <div className="h-full flex flex-col">
-      <section className="flex gap-5 sticky top-0 items-center bg-gray-800 mb-3">
+      <section className="flex gap-5 sticky top-0 items-center bg-gray-800 pb-3">
         {isMobile && (
           <NavLink to="/">
             <svg
@@ -261,7 +261,7 @@ function Conversation() {
         <div>{user ? user.username : null}</div>
       </section>
       {/* messages rendering */}
-      <section className="flex flex-col flex-1 max-h-screen overflow-y-auto">
+      <section className="flex flex-col min-h-0 flex-1 overflow-y-auto">
         {groupedMessages ? (
           Object.keys(groupedMessages).map((date) => (
             <div key={date}>
@@ -464,7 +464,7 @@ function Conversation() {
             handleMessageSubmit(e, false);
           }
         }}
-        className="mt-2 flex z-20 sticky bottom-0 p-3 bg-gray-800 items-center outline outline-2 outline-red-200 justify-center gap-4"
+        className="flex z-20 sticky bottom-0 pt-3 bg-gray-800 items-center justify-center gap-4"
         action="#"
       >
         <button
