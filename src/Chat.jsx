@@ -172,7 +172,7 @@ function Chat() {
     async function getFriends() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3000/friend`, {
+        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/friend`, {
           method: "GET",
           signal: signal,
           headers: {

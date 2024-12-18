@@ -56,7 +56,7 @@ function ResetPassword() {
     }
     try {
       const response = await fetch(
-        "http://localhost:3000/users/reset-password",
+        "https://messaging-app-backend-abse.onrender.com/users/reset-password",
         {
           method: "POST",
           headers: {

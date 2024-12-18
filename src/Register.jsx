@@ -125,7 +125,7 @@ function Register() {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/users/register", {
+      const response = await fetch("https://messaging-app-backend-abse.onrender.com/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
