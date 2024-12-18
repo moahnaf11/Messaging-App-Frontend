@@ -340,7 +340,7 @@ function Conversation() {
                     className={`rounded-lg p-2 max-w-[50%] ${
                       message.senderId === mydata.id
                         ? "bg-green-400 text-black ml-auto"
-                        : "bg-white text-black mr-auto"
+                        : "bg-gray-300 text-black mr-auto"
                     }`}
                   >
                     {message.senderId === mydata.id && (
