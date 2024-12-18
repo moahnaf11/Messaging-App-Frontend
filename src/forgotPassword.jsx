@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState(null);
   const [success, setSuccess] = useState("");
 
@@ -27,6 +28,7 @@ function ForgotPassword() {
       return;
     }
     try {
+      setLoading(true);
       const response = await fetch(
         "http://localhost:3000/users/forgot-password",
         {
@@ -46,7 +48,7 @@ function ForgotPassword() {
       }
       const data = await response.json();
       setSuccess(data.message);
-
+      setLoading(false);
       console.log("Password reset email sent", data);
     } catch (error) {
       console.error("Error during sending email for password reset", error);
@@ -125,10 +127,41 @@ function ForgotPassword() {
           <div className="text-center text-green-700">{success}</div>
           <div className="flex">
             <button
-              className="px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
+              disabled={loading}
+              className="flex justify-center px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
               type="submit"
             >
-              Submit
+              {loading ? (
+                <svg
+                  className="size-7 animate-spin"
+                  width="28px"
+                  height="28px"
+                  viewBox="-0.48 -0.48 16.96 16.96"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#000000"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    {" "}
+                    <g fill="#000000" fill-rule="evenodd" clip-rule="evenodd">
+                      {" "}
+                      <path
+                        d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"
+                        opacity=".2"
+                      ></path>{" "}
+                      <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z"></path>{" "}
+                    </g>{" "}
+                  </g>
+                </svg>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </form>

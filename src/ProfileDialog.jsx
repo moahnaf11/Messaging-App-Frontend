@@ -2,7 +2,7 @@ function ProfileDialog({ user, profDialog, closeProfileDialog }) {
   return (
     <>
       <dialog
-        className="md:min-w-[40%] min-w-[85%] rounded-md p-3"
+        className="md:min-w-[40%] min-w-[85%] bg-gray-400 rounded-md p-3"
         ref={profDialog}
       >
         <div className="flex flex-col gap-5">
@@ -83,7 +83,7 @@ function ProfileDialog({ user, profDialog, closeProfileDialog }) {
           </div>
           <div>
             <h2 className="font-custom font-bold">About Me</h2>
-            <p className="min-h-20 bg-gray-500">{user && user.status}</p>
+            <p className="min-h-20">{user && user.status}</p>
           </div>
         </div>
       </dialog>

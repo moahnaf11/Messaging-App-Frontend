@@ -7,12 +7,12 @@ import {
 } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
+import socket from "../socket";
 
 function Settings() {
   const { setisLoggedIn } = useOutletContext();
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
-
   function handleLogOut() {
     setisLoggedIn(false);
     localStorage.removeItem("token");
@@ -51,7 +51,7 @@ function Settings() {
           setUserProfile(data); // Store user profile data
         }
       } catch (error) {
-        if (err.name === "AbortError") {
+        if (error.name === "AbortError") {
           console.log("Fetch request aborted");
           return;
         }
@@ -88,13 +88,21 @@ function Settings() {
       const data = await response.json();
       console.log("updated user online status", data);
       setUserProfile(data);
+      socket.emit("updateOnline", {
+        id: data.id,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        username: data.username,
+        profilePicture: data.profilePicture,
+        online: data.online,
+      });
     } catch (err) {
       console.log("failed in fetch request to update online status", err);
     }
   }
   return (
     <main className="min-h-screen p-3 bg-gray-800 text-white grid lg:grid-cols-[1fr_2fr] md:grid-cols-[1fr_3fr] gap-4">
-      <div className="p-3 border-r-2 border-white grid grid-cols-1 auto-rows-min gap-16">
+      <div className="p-3 md:border-r-2 md:border-white grid grid-cols-1 auto-rows-min gap-16">
         <div>
           <Link
             className="font-custom flex items-center gap-4 font-bold md:text-[12px] lg:text-[16px]"

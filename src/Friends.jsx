@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Outlet, NavLink, useOutletContext } from "react-router-dom";
+import socket from "../socket";
 
 function Friends() {
   const { friends, setFriends, getUser, mydata } = useOutletContext();
@@ -37,7 +38,7 @@ function Friends() {
   async function sendFriendReq(e) {
     // add friend
     e.preventDefault();
-    if (!e.target.checkValidity()) {
+    if (!e.target.checkValidity() || addusername === mydata.username) {
       return;
     }
     try {
@@ -60,6 +61,7 @@ function Friends() {
       console.log("friend req sent successfully", data);
       setFriends((prev) => [...prev, data]);
       closeDialog();
+      socket.emit("sendFriendReq", data);
     } catch (err) {
       console.log("Error in fetch for sending friend req", err);
     }
@@ -88,12 +90,16 @@ function Friends() {
       if (!response.ok) {
         const data = await response.json();
         console.log("failed to delete friend", data);
-        setFriends([]);
         return;
       }
       const data = await response.json();
       console.log("deleted friend successfully", data);
       setFriends((prev) => prev.filter((friend) => friend.id !== data.id));
+      socket.emit("deleteFriend", {
+        data,
+        id:
+          data.requesterId === mydata.id ? data.requesteeId : data.requesterId,
+      });
     } catch (err) {
       console.log("failed in fetch to delete friend", err);
     }
@@ -127,6 +133,12 @@ function Friends() {
             return friend;
           }
         });
+      });
+
+      socket.emit("blockuser", {
+        data,
+        id:
+          data.requesterId === mydata.id ? data.requesteeId : data.requesterId,
       });
     } catch (err) {
       console.error("Error in fetch for blocking user", err);

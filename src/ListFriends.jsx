@@ -7,6 +7,10 @@ function ListFriends() {
   const [search, setSearch] = useState("");
   const { openProfileDialog } = useContext(ProfileDialogContext);
 
+  const acceptedFriends = friends
+    ? friends.filter((friend) => friend.status === "accepted")
+    : [];
+
   function handleSearch(e) {
     setSearch(e.target.value);
   }
@@ -21,11 +25,8 @@ function ListFriends() {
         placeholder="search"
       />
       {/* all friends */}
-      {friends && friends.length > 0 ? (
-        friends
-          .filter((friend) => {
-            return friend.status === "accepted";
-          })
+      {acceptedFriends && acceptedFriends.length > 0 ? (
+        acceptedFriends
           .filter((friend) => {
             const user = getUser(friend);
             // If search is not empty, filter by username

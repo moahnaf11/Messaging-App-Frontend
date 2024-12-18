@@ -164,12 +164,14 @@ function LandingPage() {
             {/* testimonial 1 */}
             <div className="flex flex-shrink-0 snap-center flex-col gap-4 w-[100%]">
               <div className="flex gap-2 items-center">
-                <img
-                  className="rounded-full h-[100px]"
-                  src="/sofia.jpg"
-                  alt=""
-                />
-                <h3 className="font-bold font-custom italic">Sophia M</h3>
+                <div className="w-[50px] h-[50px] lg:h-[70px] lg:w-[70px]">
+                  <img
+                    className="rounded-full h-full object-cover"
+                    src="/boy.jpg"
+                    alt=""
+                  />
+                </div>
+                <h3 className="font-bold font-custom italic">Kai M</h3>
               </div>
               <p>
                 "Whispr keeps me connected with my team without any hassle!"
@@ -179,11 +181,13 @@ function LandingPage() {
             {/* testimonial 2 */}
             <div className="flex flex-shrink-0 snap-center flex-col gap-4 w-[100%]">
               <div className="flex gap-2 items-center">
-                <img
-                  className="rounded-full h-[100px]"
-                  src="/liam.jpg"
-                  alt=""
-                />
+                <div className="w-[50px] h-[50px] lg:h-[70px] lg:w-[70px]">
+                  <img
+                    className="rounded-full h-full object-cover"
+                    src="/liam.jpg"
+                    alt=""
+                  />
+                </div>
                 <h3 className="font-bold font-custom italic">Liam P</h3>
               </div>
               <p>
@@ -195,12 +199,14 @@ function LandingPage() {
             {/* testimonial 3 */}
             <div className="flex flex-shrink-0 snap-center flex-col gap-4 w-[100%]">
               <div className="flex gap-2 items-center">
-                <img
-                  className="rounded-full h-[100px]"
-                  src="/emma.jpg"
-                  alt=""
-                />
-                <h3 className="font-bold font-custom italic">Emma R</h3>
+                <div className="w-[50px] h-[50px] lg:h-[70px] lg:w-[70px]">
+                  <img
+                    className="rounded-full h-full object-cover"
+                    src="/boy1.jpg"
+                    alt=""
+                  />
+                </div>
+                <h3 className="font-bold font-custom italic">David R</h3>
               </div>
               <p>
                 "I appreciate the clean and intuitive interface. It makes
@@ -211,11 +217,13 @@ function LandingPage() {
             {/* testimonial 4 */}
             <div className="flex flex-shrink-0 snap-center flex-col gap-4 w-[100%]">
               <div className="flex gap-2 items-center">
-                <img
-                  className="rounded-full h-[100px]"
-                  src="/noah.jpg"
-                  alt=""
-                />
+                <div className="w-[50px] h-[50px] lg:h-[70px] lg:w-[70px]">
+                  <img
+                    className="rounded-full h-full object-cover"
+                    src="/noah.jpg"
+                    alt=""
+                  />
+                </div>
                 <h3 className="font-bold font-custom italic">Noah J</h3>
               </div>
               <p>
@@ -228,7 +236,7 @@ function LandingPage() {
       </main>
       <footer className="bg-gray-800 flex justify-center p-3 text-white items-center sticky bottom-0">
         <h2 className="flex items-center gap-5 font-custom font-bold">
-          Follow me on Github{" "}
+          Github{" "}
           <a
             target="_blank"
             rel="noopener noreferrer"

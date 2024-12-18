@@ -1,9 +1,12 @@
 import { useOutletContext } from "react-router-dom";
 import { useRef, useState } from "react";
 import Dialog from "./Dialog";
+import socket from "../socket";
 
 function Profile() {
   const { userProfile, setUserProfile, handleLogOut } = useOutletContext();
+  const [loading, setLoading] = useState(false);
+  const [delPic, setDelPic] = useState(false);
   const dialogRef = useRef(null);
   const profpicRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -124,9 +127,6 @@ function Profile() {
       return;
     }
     if (selectDialog) {
-      closeDialog(selectDialog);
-    }
-    if (selectDialog) {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -163,7 +163,18 @@ function Profile() {
           return;
         }
         const data = await response.json();
+        console.log(data);
         setUserProfile(data);
+        closeDialog(selectDialog);
+        socket.emit("updateOnline", {
+          id: data.id,
+          firstname: data.firstname,
+          lastname: data.lastname,
+          username: data.username,
+          profilePicture: data.profilePicture,
+          online: data.online,
+          status: data.status,
+        });
       } catch (error) {
         console.log("failed to update user profile details", error);
       }
@@ -171,6 +182,7 @@ function Profile() {
     }
     // send fetch for profile picture details
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
       const photoFile = new FormData();
 
@@ -193,7 +205,17 @@ function Profile() {
       }
       const data = await response.json();
       setUserProfile(data);
+      socket.emit("updateOnline", {
+        id: data.id,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        username: data.username,
+        profilePicture: data.profilePicture,
+        online: data.online,
+        status: data.status,
+      });
       console.log("pic uploaded", data);
+      setLoading(false);
       closeDialog(selectDialog);
     } catch (error) {
       console.log("failed to update user profile details", error);
@@ -221,6 +243,15 @@ function Profile() {
       const data = await response.json();
       setUserProfile(data);
       console.log("pic deleted", data);
+      socket.emit("updateOnline", {
+        id: data.id,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        username: data.username,
+        profilePicture: data.profilePicture,
+        online: data.online,
+        status: data.status,
+      });
     } catch (error) {
       console.log("failed to delete prof pic", error);
     }
@@ -254,6 +285,7 @@ function Profile() {
       setUserProfile(null);
       console.log("user account deleted", data);
       handleLogOut();
+      socket.emit("deleteAccount", data);
     } catch (error) {
       console.log("failed in fetch to delete users account", error);
     }
@@ -316,12 +348,15 @@ function Profile() {
               </g>
             </svg>
           </button>
-          <button onClick={deleteProfPic}>
+          {delPic ? (
             <svg
-              className="size-7"
-              viewBox="0 0 24 24"
-              fill="none"
+              className="size-7 animate-spin"
+              width="28px"
+              height="28px"
+              viewBox="-0.48 -0.48 16.96 16.96"
               xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              stroke="#000000"
             >
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
               <g
@@ -331,44 +366,71 @@ function Profile() {
               ></g>
               <g id="SVGRepo_iconCarrier">
                 {" "}
-                <path
-                  d="M10 12V17"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>{" "}
-                <path
-                  d="M14 12V17"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>{" "}
-                <path
-                  d="M4 7H20"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>{" "}
-                <path
-                  d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>{" "}
-                <path
-                  d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>{" "}
+                <g fill="#000000" fill-rule="evenodd" clip-rule="evenodd">
+                  {" "}
+                  <path
+                    d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"
+                    opacity=".2"
+                  ></path>{" "}
+                  <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z"></path>{" "}
+                </g>{" "}
               </g>
             </svg>
-          </button>
+          ) : (
+            <button onClick={deleteProfPic}>
+              <svg
+                className="size-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <path
+                    d="M10 12V17"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>{" "}
+                  <path
+                    d="M14 12V17"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>{" "}
+                  <path
+                    d="M4 7H20"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>{" "}
+                  <path
+                    d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>{" "}
+                  <path
+                    d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>{" "}
+                </g>
+              </svg>
+            </button>
+          )}
         </div>
       </section>
 
@@ -442,6 +504,7 @@ function Profile() {
 
           {/* dialog */}
           <Dialog
+            loading={loading}
             dialogRef={dialogRef}
             profpicRef={profpicRef}
             photoError={photoError}

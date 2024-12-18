@@ -1,16 +1,19 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { useState, useEffect, useRef, createContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import ProfileDialog from "./ProfileDialog";
+import socket from "../socket";
 
 export const ProfileDialogContext = createContext();
 
 function Chat() {
   // location
   const location = useLocation();
+  const navigate = useNavigate();
+  const pathname = useRef(location.pathname);
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-  const [friends, setFriends] = useState(null);
+  const [friends, setFriends] = useState([]);
   const [mydata, setMyData] = useState(null);
   const [search, setSearch] = useState("");
   const profDialog = useRef(null);
@@ -39,6 +42,129 @@ function Chat() {
     setProfDisplay(null);
     profDialog.current.close();
   }
+
+  useEffect(() => {
+    pathname.current = location.pathname;
+    console.log("pathname", pathname);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    socket.on("receiveOnline", (data) => {
+      setFriends((prev) =>
+        prev.map((friend) => {
+          if (
+            friend.requesterId === data.id ||
+            friend.requesteeId === data.id
+          ) {
+            if (friend.requesterId === data.id) {
+              return {
+                ...friend,
+                requester: { ...data }, // Update requester info
+              };
+            } else {
+              return {
+                ...friend,
+                requestee: { ...data }, // Update requestee info
+              };
+            }
+          } else {
+            return friend; // No update if it doesn't match
+          }
+        })
+      );
+    });
+
+    socket.on("receiveFriendReq", (data) => {
+      console.log("friend req received", data);
+      setFriends((prev) => [...prev, data]);
+    });
+
+    socket.on("receiveRejectRequest", (data) => {
+      setFriends((prev) => prev.filter((friend) => friend.id !== data.id));
+    });
+
+    socket.on("receiveAcceptReq", (data) => {
+      setFriends((prev) =>
+        prev.map((friend) => {
+          if (friend.id === data.id) {
+            return data;
+          } else {
+            return friend;
+          }
+        })
+      );
+    });
+
+    socket.on("receiveDeleteFriend", (data) => {
+      console.log(data);
+      setFriends((prev) => prev.filter((friend) => friend.id !== data.id));
+      // Check if the current route is /chat/:id
+      const currentPath = pathname.current; // e.g., "/chat/123"
+      const isChattingWithBlockedUser = currentPath === `/chat/${data.id}`;
+      console.log(isChattingWithBlockedUser);
+
+      if (isChattingWithBlockedUser) {
+        navigate("/"); // Redirect to the home page
+      }
+    });
+
+    socket.on("receiveBlockUser", (data) => {
+      setFriends((prev) => {
+        return prev.map((friend) => {
+          if (friend.id === data.id) {
+            return data;
+          } else {
+            return friend;
+          }
+        });
+      });
+      // Check if the current route is /chat/:id
+      const currentPath = pathname.current; // e.g., "/chat/123"
+      const isChattingWithBlockedUser = currentPath === `/chat/${data.id}`;
+      console.log(isChattingWithBlockedUser);
+
+      if (isChattingWithBlockedUser) {
+        navigate("/"); // Redirect to the home page
+      }
+    });
+
+    socket.on("receiveDeleteAccount", (data) => {
+      let friendId;
+      setFriends((prev) => {
+        // Look through the friends list and find the matching friend
+        const friendRelation = prev.find(
+          (friend) =>
+            friend.requesterId === data.id || friend.requesteeId === data.id
+        );
+        if (friendRelation) {
+          friendId = friendRelation.id;
+        }
+
+        // Return the updated friends list after filtering the deleted user
+        return prev.filter(
+          (friend) =>
+            friend.requesterId !== data.id && friend.requesteeId !== data.id
+        );
+      });
+      const currentPath = pathname.current; // e.g., "/chat/123"
+      const isChattingWithDeletedUser = currentPath === `/chat/${friendId}`;
+      console.log(isChattingWithDeletedUser);
+
+      if (isChattingWithDeletedUser) {
+        navigate("/"); // Redirect to the home page
+      }
+    });
+
+    return () => {
+      socket.off("receiveOnline");
+      socket.off("receiveFriendReq");
+      socket.off("receiveRejectRequest");
+      socket.off("receiveAcceptReq");
+      socket.off("receiveDeleteFriend");
+      socket.off("receiveBlockUser");
+      socket.off("receiveDeleteAccount");
+    };
+  }, [navigate]);
 
   useEffect(() => {
     const controller = new AbortController(); // Create an AbortController
@@ -81,6 +207,7 @@ function Chat() {
     const token = localStorage.getItem("token");
     const data = jwtDecode(token);
     setMyData(data);
+    socket.emit("login", data.id);
   }, []);
   return (
     <main className="relative h-[calc(100vh-3.75rem)] p-3 bg-gray-800 text-white grid md:grid-cols-[1fr_2fr] gap-4">

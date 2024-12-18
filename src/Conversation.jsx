@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
+import socket from "../socket";
+import { ProfileDialogContext } from "./Chat";
 
 function Conversation() {
   const { id } = useParams();
+  const { openProfileDialog } = useContext(ProfileDialogContext);
+  const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-  const { mydata } = useOutletContext();
+  const { mydata, friends } = useOutletContext();
   const [messages, setMessages] = useState([]);
   const [person, setPerson] = useState(null);
   const [sendMessage, setSendMessage] = useState("");
@@ -17,10 +21,16 @@ function Conversation() {
   const fileInputRef = useRef(null);
   const imageDialog = useRef(null);
   const [imageDisplay, setImageDisplay] = useState(null);
-  const user = person
-    ? person.requesterId === mydata.id
-      ? person.requestee
-      : person.requester
+
+  const friendObject =
+    friends && person
+      ? friends.find((friend) => friend.id === person.id)
+      : null;
+
+  const user = friendObject
+    ? friendObject.requesterId === mydata.id
+      ? friendObject.requestee
+      : friendObject.requester
     : null;
 
   const groupedMessages = messages.length
@@ -33,6 +43,43 @@ function Conversation() {
         return acc;
       }, {})
     : null;
+
+  // Listen for the 'receiveMessage' event
+  useEffect(() => {
+    // Setup the socket listener for incoming messages
+    socket.on("receiveMessage", (messageData) => {
+      // When a message is received, update the state
+      setMessages((prev) => [...prev, messageData.content]);
+    });
+
+    socket.on("receiveMediaMessage", (messageMedia) => {
+      setMessages((prev) => [...prev, messageMedia]);
+    });
+
+    socket.on("receiveDeleteMessage", (message) => {
+      setMessages((prev) => prev.filter((msg) => msg.id !== message.id));
+    });
+
+    socket.on("receiveUpdateMessage", (message) => {
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.id !== message.id) {
+            return msg;
+          } else {
+            return message;
+          }
+        })
+      );
+    });
+
+    // Cleanup the socket listener when the component unmounts
+    return () => {
+      socket.off("receiveMessage");
+      socket.off("receiveMediaMessage");
+      socket.off("receiveDeleteMessage");
+      socket.off("receiveUpdateMessage");
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController(); // Create an AbortController
@@ -107,6 +154,7 @@ function Conversation() {
       const data = await response.json();
       console.log("message deleted successfully", data);
       setMessages((prev) => prev.filter((message) => message.id !== messageId));
+      socket.emit("deleteMessage", { data, receiverId: data.receiverId });
     } catch (err) {
       console.log("failed in fetch for deleting message", err);
     }
@@ -134,11 +182,16 @@ function Conversation() {
         console.log("message sent successfully", data);
         setSendMessage("");
         setMessages((prev) => [...prev, data]);
+        socket.emit("sendMessage", {
+          content: data,
+          receiverId: user.id, // Ensure you include receiverId here as well
+        });
       } catch (err) {
         console.log("failed in fetch for posting message", err);
       }
     } else {
       try {
+        setLoading(true);
         const token = localStorage.getItem("token");
         const formData = new FormData();
         const fileInput = e.target.elements.media;
@@ -167,7 +220,9 @@ function Conversation() {
         const data = await response.json();
         console.log("message with media sent successfully", data);
         closeMessageMedia();
+        setLoading(false);
         setMessages((prev) => [...prev, data]);
+        socket.emit("sendMediaMessage", { data, receiverId: user.id });
       } catch (err) {
         console.log("failed in fetch for posting message with media", err);
       }
@@ -208,6 +263,7 @@ function Conversation() {
           }
         })
       );
+      socket.emit("updateMessage", { data, receiverId: data.receiverId });
     } catch (err) {
       console.log("failed in fetch for updating message", err);
     }
@@ -244,7 +300,10 @@ function Conversation() {
             </svg>
           </NavLink>
         )}
-        <div className="relative size-11 rounded-full">
+        <button
+          onClick={() => openProfileDialog(user)}
+          className="relative size-11 rounded-full"
+        >
           <img
             className="h-full rounded-full object-cover"
             src={
@@ -257,7 +316,7 @@ function Conversation() {
               user && user.online ? "bg-green-600" : "bg-gray-500"
             } `}
           ></div>
-        </div>
+        </button>
         <div>{user ? user.username : null}</div>
       </section>
       {/* messages rendering */}
@@ -618,15 +677,48 @@ function Conversation() {
             />
           </div>
           <div className="flex">
-            <button className="px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black">
-              Submit
+            <button
+              disabled={loading}
+              className="flex px-3 py-2 rounded-full justify-center bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
+            >
+              {loading ? (
+                <svg
+                  className="size-7 animate-spin"
+                  width="28px"
+                  height="28px"
+                  viewBox="-0.48 -0.48 16.96 16.96"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  stroke="#000000"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    {" "}
+                    <g fill="#000000" fill-rule="evenodd" clip-rule="evenodd">
+                      {" "}
+                      <path
+                        d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"
+                        opacity=".2"
+                      ></path>{" "}
+                      <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z"></path>{" "}
+                    </g>{" "}
+                  </g>
+                </svg>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </form>
       </dialog>
       {/* image dialog */}
       <dialog
-        className="md:w-[40%] p-3 w-[85%] h-[60%] self-center rounded-md"
+        className="md:w-[40%] bg-gray-400 p-3 w-[85%] h-[60%] self-center rounded-md"
         ref={imageDialog}
       >
         <button
