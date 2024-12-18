@@ -216,30 +216,6 @@ function ListFriends() {
       ) : (
         <div className="font-custom font-bold">No friends yet</div>
       )}
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
-      <div className="border-2 border-white min-h-40"></div>
     </>
   );
 }

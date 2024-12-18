@@ -7,6 +7,7 @@ function Profile() {
   const { userProfile, setUserProfile, handleLogOut } = useOutletContext();
   const [loading, setLoading] = useState(false);
   const [delPic, setDelPic] = useState(false);
+  const [delacc, setdelacc] = useState(false);
   const dialogRef = useRef(null);
   const profpicRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -224,6 +225,7 @@ function Profile() {
 
   async function deleteProfPic() {
     try {
+      setDelPic(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:3000/profile/${userProfile.id}/upload-photo`,
@@ -252,6 +254,7 @@ function Profile() {
         online: data.online,
         status: data.status,
       });
+      setDelPic(false);
     } catch (error) {
       console.log("failed to delete prof pic", error);
     }
@@ -265,6 +268,7 @@ function Profile() {
       return;
     }
     try {
+      setdelacc(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:3000/profile/${userProfile.id}`,
@@ -283,6 +287,7 @@ function Profile() {
       }
       const data = await response.json();
       setUserProfile(null);
+      setdelacc(false);
       console.log("user account deleted", data);
       handleLogOut();
       socket.emit("deleteAccount", data);
@@ -496,10 +501,41 @@ function Profile() {
 
           {/* delete users account */}
           <button
+            disabled={delacc}
             onClick={deleteAccount}
-            className="px-3 py-2 mt-auto max-w-max border-2 border-red-500 font-custom font-bold text-white bg-red-500 hover:bg-transparent hover:text-red-500"
+            className="flex min-w-[169.45px] justify-center px-3 py-2 mt-auto max-w-max border-2 border-red-500 font-custom font-bold text-white bg-red-500 hover:bg-transparent hover:text-red-500"
           >
-            Delete Account
+            {delacc ? (
+              <svg
+                className="size-7 animate-spin"
+                width="28px"
+                height="28px"
+                viewBox="-0.48 -0.48 16.96 16.96"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                stroke="#000000"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <g fill="#000000" fill-rule="evenodd" clip-rule="evenodd">
+                    {" "}
+                    <path
+                      d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"
+                      opacity=".2"
+                    ></path>{" "}
+                    <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z"></path>{" "}
+                  </g>{" "}
+                </g>
+              </svg>
+            ) : (
+              "Delete Account"
+            )}
           </button>
 
           {/* dialog */}
