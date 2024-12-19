@@ -21,11 +21,13 @@ import Blocked from "./Blocked.jsx";
 import SentReq from "./SentReq.jsx";
 import ReceivedReq from "./ReceivedReq.jsx";
 import Conversation from "./Conversation.jsx";
+import ErrorPage from "./ErrorPage.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "",
