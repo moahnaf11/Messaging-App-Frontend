@@ -87,14 +87,17 @@ function Conversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message/${id}`, {
-          method: "GET",
-          signal,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-abse.onrender.com/message/${id}`,
+          {
+            method: "GET",
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -119,7 +122,7 @@ function Conversation() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [id]);
 
   const openMessageMedia = () => {
     messageMediaDialog.current.showModal();
@@ -164,14 +167,17 @@ function Conversation() {
     if (!MessageWithMedia) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ content: sendMessage, receiverId: user.id }),
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-abse.onrender.com/message`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: sendMessage, receiverId: user.id }),
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -203,13 +209,16 @@ function Conversation() {
         }
         formData.append("content", caption);
         formData.append("receiverId", user.id);
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message/media`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-abse.onrender.com/message/media`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
