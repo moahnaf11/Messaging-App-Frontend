@@ -11,6 +11,7 @@ function Login() {
     password: null,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setisLoggedIn } = useOutletContext();
 
@@ -77,15 +78,20 @@ function Login() {
       };
 
       try {
-        const response = await fetch("https://messaging-app-backend-abse.onrender.com/users/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(loginData),
-        });
+        setLoading(true);
+        const response = await fetch(
+          "https://messaging-app-backend-abse.onrender.com/users/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+          }
+        );
         if (!response.ok) {
           // handle server form validation errors
+          setLoading(false);
           const data = await response.json();
           if (Array.isArray(data.error)) {
             const errors = data.error.reduce((acc, error) => {
@@ -111,6 +117,7 @@ function Login() {
         // Handle success (store token)
         localStorage.setItem("token", data.token);
         setisLoggedIn(true);
+        setLoading(false);
         // redirect to chat page
         navigate("/");
       } catch (error) {
@@ -273,12 +280,44 @@ function Login() {
 
         <div className="flex justify-center gap-5">
           <button
+            disabled={loading}
             type="submit"
             className="px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
           >
-            Submit
+            {loading ? (
+              <svg
+                className="size-7 animate-spin"
+                width="28px"
+                height="28px"
+                viewBox="-0.48 -0.48 16.96 16.96"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                stroke="#000000"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <g fill="#000000" fill-rule="evenodd" clip-rule="evenodd">
+                    {" "}
+                    <path
+                      d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8z"
+                      opacity=".2"
+                    ></path>{" "}
+                    <path d="M7.25.75A.75.75 0 018 0a8 8 0 018 8 .75.75 0 01-1.5 0A6.5 6.5 0 008 1.5a.75.75 0 01-.75-.75z"></path>{" "}
+                  </g>{" "}
+                </g>
+              </svg>
+            ) : (
+              "Submit"
+            )}
           </button>
           <button
+            disabled={loading}
             type="reset"
             className="px-3 py-2 rounded-full bg-gray-500 font-custom font-bold border-2 border-gray-500 flex-1 text-white hover:bg-white hover:text-black"
           >

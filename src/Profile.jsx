@@ -201,6 +201,7 @@ function Profile() {
       );
       if (!response.ok) {
         const data = await response.json();
+        setLoading(false);
         setPhotoError(data.error);
         return;
       }
@@ -238,6 +239,7 @@ function Profile() {
         }
       );
       if (!response.ok) {
+        setDelPic(false);
         const data = await response.json();
         console.log("failed to delete profile picture", data);
         return;
@@ -281,6 +283,7 @@ function Profile() {
         }
       );
       if (!response.ok) {
+        setdelacc(false);
         const data = await response.json();
         console.log("failed to delete users account", data);
         return;

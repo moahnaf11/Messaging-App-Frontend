@@ -224,6 +224,7 @@ function Conversation() {
           const data = await response.json();
           console.log("failed to send message with media", data);
           setFileError(data.error);
+          setLoading(false);
           return;
         }
         const data = await response.json();

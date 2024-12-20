@@ -44,6 +44,7 @@ function ForgotPassword() {
         if (data.error === "User not found") {
           setFormError(data.error);
         }
+        setLoading(false);
         return;
       }
       const data = await response.json();
