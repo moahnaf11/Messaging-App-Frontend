@@ -282,7 +282,7 @@ function Login() {
           <button
             disabled={loading}
             type="submit"
-            className="px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
+            className="flex justify-center px-3 py-2 rounded-full bg-green-500 font-custom font-bold border-2 border-green-500 flex-1 text-white hover:bg-white hover:text-black"
           >
             {loading ? (
               <svg
