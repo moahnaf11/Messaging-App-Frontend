@@ -1,4 +1,10 @@
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+} from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { useState, useEffect, useRef, createContext } from "react";
 import { jwtDecode } from "jwt-decode";
@@ -11,6 +17,7 @@ function Chat() {
   // location
   const location = useLocation();
   const navigate = useNavigate();
+  const { setisLoggedIn } = useOutletContext();
   const pathname = useRef(location.pathname);
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
   const [friends, setFriends] = useState([]);
@@ -172,17 +179,27 @@ function Chat() {
     async function getFriends() {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/friend`, {
-          method: "GET",
-          signal: signal,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-abse.onrender.com/friend`,
+          {
+            method: "GET",
+            signal: signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
+          if (
+            data.error === "token not present" ||
+            data.error === "invalid token"
+          ) {
+            setisLoggedIn(false);
+            return;
+          }
           console.log("no friends found", data);
           setFriends([]);
           return;
