@@ -9,9 +9,17 @@
   font-style: normal;
 }
 
+body {
+  background-color: #1F2937;
+}
+
 ::-webkit-scrollbar {
   width: 1em;
   height: 1em;
+}
+
+body::-webkit-scrollbar {
+  width: 2em;
 }
 
 ::-webkit-scrollbar-track {
