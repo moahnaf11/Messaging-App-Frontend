@@ -728,7 +728,7 @@ function Conversation() {
       </dialog>
       {/* image dialog */}
       <dialog
-        className="md:w-[40%] bg-gray-400 p-3 w-[85%] h-[60%] self-center rounded-md"
+        className="md:w-[40%] bg-gray-400 p-3 w-[85%] h-[60%] overflow-hidden self-center rounded-md"
         ref={imageDialog}
       >
         <button
@@ -793,7 +793,7 @@ function Conversation() {
         </button>
 
         <img
-          className="max-h-[85%] object-cover mx-auto"
+          className="h-full w-full object-cover"
           src={imageDisplay ? imageDisplay : null}
           alt=""
         />
