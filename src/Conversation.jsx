@@ -793,7 +793,7 @@ function Conversation() {
         </button>
 
         <img
-          className="h-[calc(100% - 36px)] w-full object-contain"
+          className="h-[calc(100%-36px)] w-full object-contain"
           src={imageDisplay ? imageDisplay : null}
           alt=""
         />
