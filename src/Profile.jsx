@@ -303,22 +303,25 @@ function Profile() {
     <main className="min-h-screen p-3 text-white flex flex-col gap-5">
       <h2 className="font-custom font-bold text-lg">My Profile</h2>
       <section className="flex items-center justify-between">
-        <div className="flex relative items-center gap-5 w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
-          <div
-            className={`${
-              userProfile && userProfile.online ? "bg-green-600" : "bg-gray-500"
-            } lg:size-8 md:size-6 size-5 rounded-full absolute bottom-0 right-0`}
-          ></div>
-
-          <img
-            className="rounded-full h-full w-full object-cover"
-            src={
-              userProfile && userProfile.profilePicture
-                ? userProfile.profilePicture
-                : "/default.jpg"
-            }
-            alt="users profile picture"
-          />
+        <div className="flex gap-5">
+          <div className="relative items-center w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
+            <div
+              className={`${
+                userProfile && userProfile.online
+                  ? "bg-green-600"
+                  : "bg-gray-500"
+              } lg:size-8 md:size-6 size-5 rounded-full absolute bottom-0 right-0`}
+            ></div>
+            <img
+              className="rounded-full h-full w-full object-cover"
+              src={
+                userProfile && userProfile.profilePicture
+                  ? userProfile.profilePicture
+                  : "/default.jpg"
+              }
+              alt="users profile picture"
+            />
+          </div>
           <div className="text-lg">
             {userProfile ? userProfile.username : null}
           </div>
