@@ -65,7 +65,7 @@ function ProfileDialog({ user, profDialog, closeProfileDialog }) {
           <div className="flex items-center gap-5">
             <div className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]">
               <img
-                className="rounded-full h-full object-cover"
+                className="rounded-full h-full w-full object-cover"
                 src={
                   user && user.profilePicture
                     ? user.profilePicture

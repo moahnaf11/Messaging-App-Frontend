@@ -315,7 +315,7 @@ function Conversation() {
           className="relative size-11 rounded-full"
         >
           <img
-            className="h-full rounded-full object-cover"
+            className="h-full rounded-full w-full object-cover"
             src={
               user && user.profilePicture ? user.profilePicture : "/default.jpg"
             }

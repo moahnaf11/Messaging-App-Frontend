@@ -311,7 +311,7 @@ function Profile() {
           ></div>
 
           <img
-            className="rounded-full h-full object-cover"
+            className="rounded-full h-full w-full object-cover"
             src={
               userProfile && userProfile.profilePicture
                 ? userProfile.profilePicture
