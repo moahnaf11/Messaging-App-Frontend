@@ -9,6 +9,23 @@
   font-style: normal;
 }
 
+::-webkit-scrollbar {
+  width: 1em;
+  height: 1em;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #374151;
+  border-radius: 100vw;
+  margin-block: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #71717a;
+  border: 2px solid #1f2937;
+  border-radius: 100vw;
+}
+
 input:invalid:not(:placeholder-shown) {
   background-color: #f87171;
 }
@@ -17,7 +34,3 @@ input:invalid:not(:placeholder-shown) {
   background-color: #d1d5db;
   opacity: 0.5;
 }
-
-/* body {
-  min-height: 100vh;
-}  */
