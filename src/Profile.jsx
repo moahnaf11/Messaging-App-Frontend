@@ -303,8 +303,8 @@ function Profile() {
     <main className="min-h-screen p-3 text-white flex flex-col gap-5">
       <h2 className="font-custom font-bold text-lg">My Profile</h2>
       <section className="flex items-center justify-between">
-        <div className="flex gap-5">
-          <div className="relative items-center w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
+        <div className="flex gap-5 items-center">
+          <div className="relative w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
             <div
               className={`${
                 userProfile && userProfile.online
