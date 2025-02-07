@@ -29,7 +29,7 @@ function Settings() {
         if (token) {
           const decodedPayload = jwtDecode(token);
           const response = await fetch(
-            `https://messaging-app-backend-abse.onrender.com/profile/${decodedPayload.id}`,
+            `http://localhost:3000/profile/${decodedPayload.id}`,
             {
               method: "GET",
               signal,
@@ -69,7 +69,7 @@ function Settings() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}/online-status`,
+        `http://localhost:3000/profile/${userProfile.id}/online-status`,
         {
           method: "PUT",
           headers: {

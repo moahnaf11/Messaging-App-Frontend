@@ -131,7 +131,7 @@ function Profile() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}`,
+          `http://localhost:3000/profile/${userProfile.id}`,
           {
             method: "PUT",
             headers: {
@@ -190,7 +190,7 @@ function Profile() {
       // Append the file and other fields (if necessary) to the FormData object
       photoFile.append("profilepic", filedoc);
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}/upload-photo`,
+        `http://localhost:3000/profile/${userProfile.id}/upload-photo`,
         {
           method: "PUT",
           headers: {
@@ -229,7 +229,7 @@ function Profile() {
       setDelPic(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}/upload-photo`,
+        `http://localhost:3000/profile/${userProfile.id}/upload-photo`,
         {
           method: "DELETE",
           headers: {
@@ -273,7 +273,7 @@ function Profile() {
       setdelacc(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}`,
+        `http://localhost:3000/profile/${userProfile.id}`,
         {
           method: "DELETE",
           headers: {

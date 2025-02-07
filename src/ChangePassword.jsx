@@ -87,7 +87,7 @@ function ChangePassword() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/profile/${userProfile.id}/change-password`,
+        `http://localhost:3000/profile/${userProfile.id}/change-password`,
         {
           method: "POST",
           headers: {

@@ -88,7 +88,7 @@ function Conversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-abse.onrender.com/message/${id}`,
+          `http://localhost:3000/message/${id}`,
           {
             method: "GET",
             signal,
@@ -139,7 +139,7 @@ function Conversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
+        `http://localhost:3000/message/${messageId}`,
         {
           method: "DELETE",
           headers: {
@@ -168,7 +168,7 @@ function Conversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-abse.onrender.com/message`,
+          `http://localhost:3000/message`,
           {
             method: "POST",
             headers: {
@@ -210,7 +210,7 @@ function Conversation() {
         formData.append("content", caption);
         formData.append("receiverId", user.id);
         const response = await fetch(
-          `https://messaging-app-backend-abse.onrender.com/message/media`,
+          `http://localhost:3000/message/media`,
           {
             method: "POST",
             headers: {
@@ -243,7 +243,7 @@ function Conversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
+        `http://localhost:3000/message/${messageId}`,
         {
           method: "PUT",
           headers: {

@@ -32,7 +32,7 @@ function ReceivedReq() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/friend/request/${friendId}`,
+        `http://localhost:3000/friend/request/${friendId}`,
         {
           method: "PUT",
           headers: {

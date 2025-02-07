@@ -30,7 +30,7 @@ function ForgotPassword() {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://messaging-app-backend-abse.onrender.com/users/forgot-password",
+        "http://localhost:3000/users/forgot-password",
         {
           method: "POST",
           headers: {
