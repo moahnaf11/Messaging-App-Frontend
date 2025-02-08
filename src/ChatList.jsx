@@ -1,37 +1,30 @@
 import { NavLink } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
 
 function ChatList({
+  updateChatDisplay,
   acceptedFriends,
   getUser,
+  openMenu,
+  menuRef,
+  toggleMenu,
   openProfileDialog,
   search,
   showArchived,
 }) {
-  const [openMenu, setOpenMenu] = useState(null); // Track which menu is open
-  const menuRef = useRef(null); // Ref for the menu div
-  const toggleMenu = (id) => {
-    setOpenMenu((prev) => (prev === id ? null : id)); // Toggle open/close
-  };
 
-  // Close the menu if a click is detected outside of the menu
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenu(null); // Close the menu when clicking outside
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside); // Listen for click outside
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside); // Clean up listener
-    };
-  }, [setOpenMenu]);
   if (showArchived) {
-    const archivedChats = acceptedFriends.filter(
-      (friend) => friend.display === "archived"
-    );
+    console.log("original", acceptedFriends);
+    const archivedChats = acceptedFriends.filter((friend) => {
+      const user = getUser(friend);
+      console.log("user", user);
+      if (user.id === friend.requester.id) {
+        return friend.requestee_display === "archived";
+      } else if (user.id === friend.requestee.id) {
+        return friend.requester_display === "archived";
+      }
+      return false;
+    });
+    console.log("archived chats", archivedChats);
     return (
       <section className={`flex-1 pt-3 min-h-0 overflow-y-auto`}>
         {archivedChats && archivedChats.length > 0 ? (
@@ -49,7 +42,7 @@ function ChatList({
                 <NavLink
                   to={`/chat/${friend.id}`}
                   className={({ isActive }) =>
-                    `flex hover:bg-gray-700 items-center p-3 justify-between ${
+                    `flex relative hover:bg-gray-700 items-center p-3 justify-between ${
                       isActive
                         ? "bg-gray-700 border-l-4 border-blue-600"
                         : "bg-gray-800 border-l-4 border-gray-800"
@@ -133,16 +126,17 @@ function ChatList({
                   {openMenu === friend.id && (
                     <div
                       ref={menuRef}
-                      key={friend.id}
+                      key={`menu + ${friend.id}`}
                       className="absolute z-10 bg-white p-2 rounded-md text-black right-0 top-0 h-min w-36"
                     >
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          // function to archive chat
+                          // function to unarchive chat
+                          updateChatDisplay(friend.id, "unarchived");
                         }}
-                        className="p-2 hover:bg-gray-400 w-full block"
+                        className="p-2 text-sm hover:bg-gray-400 w-full block"
                       >
                         Unarchive Chat
                       </button>
@@ -151,8 +145,9 @@ function ChatList({
                           e.preventDefault();
                           e.stopPropagation();
                           // function to remove chat
+                          updateChatDisplay(friend.id, "hidden");
                         }}
-                        className="p-2 hover:bg-gray-400 w-full block"
+                        className="p-2 text-sm hover:bg-gray-400 w-full block"
                       >
                         Remove Chat
                       </button>
@@ -167,11 +162,20 @@ function ChatList({
       </section>
     );
   } else {
+    const UnarchivedChats = acceptedFriends.filter((friend) => {
+      const user = getUser(friend);
+      console.log("user", user);
+      if (user.id === friend.requester.id) {
+        return friend.requestee_display === "unarchived";
+      } else if (user.id === friend.requestee.id) {
+        return friend.requester_display === "unarchived";
+      }
+      return false;
+    });
     return (
       <section className={`flex-1 pt-3 min-h-0 overflow-y-auto`}>
-        {acceptedFriends && acceptedFriends.length > 0 ? (
+        {UnarchivedChats && UnarchivedChats.length > 0 ? (
           acceptedFriends
-            .filter((friend) => friend.display === "unarchived")
             .filter((friend) => {
               const user = getUser(friend);
               if (!search) {
@@ -269,7 +273,7 @@ function ChatList({
                   {openMenu === friend.id && (
                     <div
                       ref={menuRef}
-                      key={friend.id}
+                      key={`menu + ${friend.id}`}
                       className="absolute z-10 bg-white p-2 rounded-md text-black right-0 top-0 h-min w-36"
                     >
                       <button
@@ -277,8 +281,9 @@ function ChatList({
                           e.preventDefault();
                           e.stopPropagation();
                           // function to archive chat
+                          updateChatDisplay(friend.id, "archived");
                         }}
-                        className="p-2 hover:bg-gray-400 w-full block"
+                        className="p-2 text-sm hover:bg-gray-400 w-full block"
                       >
                         Archive Chat
                       </button>
@@ -287,8 +292,9 @@ function ChatList({
                           e.preventDefault();
                           e.stopPropagation();
                           // function to remove chat
+                          updateChatDisplay(friend.id, "hidden");
                         }}
-                        className="p-2 hover:bg-gray-400 w-full block"
+                        className="p-2 text-sm hover:bg-gray-400 w-full block"
                       >
                         Remove Chat
                       </button>

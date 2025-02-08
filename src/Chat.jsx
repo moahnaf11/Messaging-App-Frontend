@@ -13,6 +13,7 @@ import socket from "../socket";
 import ChatList from "./ChatList";
 
 export const ProfileDialogContext = createContext();
+export const UpdateChatDisplayContext = createContext();
 
 function Chat() {
   // location
@@ -25,9 +26,14 @@ function Chat() {
   const [mydata, setMyData] = useState(null);
   const [search, setSearch] = useState("");
   const profDialog = useRef(null);
+  const menuRef = useRef(null); // Ref for the menu div
   const [profDisplay, setProfDisplay] = useState(null);
   // archived toggling
   const [showArchived, setShowArchived] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null); // Track which menu is open
+  const toggleMenu = (id) => {
+    setOpenMenu((prev) => (prev === id ? null : id)); // Toggle open/close
+  };
 
   // toggle archived function
   const toggleArchived = () => {
@@ -57,6 +63,44 @@ function Chat() {
     setProfDisplay(null);
     profDialog.current.close();
   }
+
+  const updateChatDisplay = async (chatId, action) => {
+    try {
+      console.log(chatId);
+      setOpenMenu(null);
+      const response = await fetch(
+        `http://localhost:3000/friend/request/archive/${chatId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include JWT token if needed
+          },
+          body: JSON.stringify({ action }), // Send action in request body
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log(data);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Chat display status updated successfully:", data);
+      setFriends((prev) => {
+        return prev.map((friend) => {
+          // If the friend's id matches the updated chat's id, return the new chat
+          if (friend.id === data.id) {
+            return data; // This is the updated chat
+          }
+          return friend; // Otherwise, return the old chat
+        });
+      });
+    } catch (error) {
+      console.error("Error updating chat status:", error.message);
+    }
+  };
 
   useEffect(() => {
     pathname.current = location.pathname;
@@ -231,6 +275,21 @@ function Chat() {
     setMyData(data);
     socket.emit("login", data.id);
   }, []);
+
+  // Close the menu if a click is detected outside of the menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(null); // Close the menu when clicking outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside); // Listen for click outside
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Clean up listener
+    };
+  }, [setOpenMenu]);
   return (
     <main className="relative h-[calc(100vh-3.75rem)] p-3 bg-gray-800 text-white grid md:grid-cols-[1fr_2fr] gap-4">
       <section
@@ -343,71 +402,16 @@ function Chat() {
         </button>
         {/* ChatList.jsx */}
         <ChatList
+          menuRef={menuRef}
+          openMenu={openMenu}
+          toggleMenu={toggleMenu}
+          updateChatDisplay={updateChatDisplay}
           acceptedFriends={acceptedFriends}
           getUser={getUser}
           search={search}
           openProfileDialog={openProfileDialog}
           showArchived={showArchived}
         />
-        {/* <section className={`flex-1 pt-3 min-h-0 overflow-y-auto`}>
-          {acceptedFriends && acceptedFriends.length > 0 ? (
-            acceptedFriends
-              .filter((friend) => {
-                const user = getUser(friend);
-                if (!search) {
-                  return true;
-                }
-                return user.username
-                  .toLowerCase()
-                  .includes(search.toLowerCase());
-              })
-              .map((friend) => {
-                const user = getUser(friend);
-                return (
-                  <NavLink
-                    to={`/chat/${friend.id}`}
-                    className={({ isActive }) =>
-                      `flex hover:bg-gray-700 items-center p-3 justify-between ${
-                        isActive
-                          ? "bg-gray-700 border-l-4 border-blue-600"
-                          : "bg-gray-800 border-l-4 border-gray-800"
-                      }`
-                    }
-                    key={friend.id}
-                  >
-                    <div className="flex items-center gap-5">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          openProfileDialog(user);
-                        }}
-                        className="relative w-[45px] h-[45px] lg:w-[60px] lg:h-[60px]"
-                      >
-                        <img
-                          className="rounded-full h-full w-full object-cover"
-                          src={
-                            user.profilePicture
-                              ? user.profilePicture
-                              : "/default.jpg"
-                          }
-                          alt="profile picture"
-                        />
-                        <div
-                          className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-                            user.online ? "bg-green-600" : "bg-gray-500"
-                          } `}
-                        ></div>
-                      </button>
-                      <div>{user.username}</div>
-                    </div>
-                  </NavLink>
-                );
-              })
-          ) : (
-            <div className="font-bold font-custom">No chats</div>
-          )}
-        </section>*/}
       </section>
       {!checkMobile() && (
         <div
@@ -423,7 +427,9 @@ function Chat() {
               setProfDisplay,
             }}
           >
-            <Outlet context={{ friends, setFriends, getUser, mydata }} />
+            <UpdateChatDisplayContext.Provider value={{ updateChatDisplay }}>
+              <Outlet context={{ friends, setFriends, getUser, mydata }} />
+            </UpdateChatDisplayContext.Provider>
           </ProfileDialogContext.Provider>
         </div>
       )}

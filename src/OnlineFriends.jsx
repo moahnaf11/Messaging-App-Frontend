@@ -1,11 +1,12 @@
 import { NavLink, useOutletContext } from "react-router-dom";
 import { useState, useContext } from "react";
-import { ProfileDialogContext } from "./Chat";
+import { ProfileDialogContext, UpdateChatDisplayContext } from "./Chat";
 
 function OnlineFriends() {
   const { friends, getUser, blockUser, deleteFriend } = useOutletContext();
   const [search, setSearch] = useState("");
   const { openProfileDialog } = useContext(ProfileDialogContext);
+  const { updateChatDisplay } = useContext(UpdateChatDisplayContext);
 
   const filteredFriends = friends
     ? friends.filter((friend) => {
@@ -67,7 +68,10 @@ function OnlineFriends() {
                   <div>{user.username}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <NavLink to={`/chat/${friend.id}`}>
+                  <NavLink
+                    to={`/chat/${friend.id}`}
+                    onClick={() => updateChatDisplay(friend.id, "unarchived")}
+                  >
                     <svg
                       className="size-7"
                       viewBox="0 0 24 24"
