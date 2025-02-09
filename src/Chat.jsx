@@ -297,9 +297,6 @@ function Chat() {
           !isMobile ? "border-r-2 border-white" : ""
         } p-3 min-h-0 flex flex-col gap-3`}
       >
-        {/* <div className="flex items-center justify-between">
-          <h1 className="font-custom font-bold">chats</h1>
-        </div> */}
         <NavLink
           to="/friends"
           className={({ isActive }) =>
@@ -344,7 +341,7 @@ function Chat() {
         {/* archived chats */}
         <button
           onClick={toggleArchived}
-          className="p-3 flex items-center gap-4 outline font-custom font-bold hover:bg-gray-700 outline-white outline-2"
+          className="p-3 flex items-center gap-4 font-custom font-bold hover:bg-gray-700"
         >
           {showArchived ? (
             <svg

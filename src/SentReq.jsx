@@ -27,6 +27,7 @@ function SentReq() {
         );
       })
     : null;
+  console.log("requests", pendingRequests);
 
   async function cancelRequest(friendId) {
     try {

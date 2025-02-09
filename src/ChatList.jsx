@@ -42,7 +42,7 @@ function ChatList({
                 <NavLink
                   to={`/chat/${friend.id}`}
                   className={({ isActive }) =>
-                    `flex relative hover:bg-gray-700 items-center p-3 justify-between ${
+                    `flex group relative hover:bg-gray-700 items-center p-3 justify-between ${
                       isActive
                         ? "bg-gray-700 border-l-4 border-blue-600"
                         : "bg-gray-800 border-l-4 border-gray-800"
@@ -82,7 +82,7 @@ function ChatList({
                       e.stopPropagation();
                       toggleMenu(friend.id);
                     }}
-                    className="outline outline-2 rounded-full p-1"
+                    className="rounded-full p-1 lg:hidden lg:group-hover:block"
                   >
                     <svg
                       className="size-6"
@@ -175,7 +175,7 @@ function ChatList({
     return (
       <section className={`flex-1 pt-3 min-h-0 overflow-y-auto`}>
         {UnarchivedChats && UnarchivedChats.length > 0 ? (
-          acceptedFriends
+          UnarchivedChats
             .filter((friend) => {
               const user = getUser(friend);
               if (!search) {
@@ -189,7 +189,7 @@ function ChatList({
                 <NavLink
                   to={`/chat/${friend.id}`}
                   className={({ isActive }) =>
-                    `flex hover:bg-gray-700 items-center p-3 justify-between relative ${
+                    `flex group hover:bg-gray-700 items-center p-3 justify-between relative ${
                       isActive
                         ? "bg-gray-700 border-l-4 border-blue-600"
                         : "bg-gray-800 border-l-4 border-gray-800"
@@ -229,7 +229,7 @@ function ChatList({
                       e.stopPropagation();
                       toggleMenu(friend.id);
                     }}
-                    className="outline outline-2 rounded-full p-1"
+                    className="rounded-full p-1 lg:hidden lg:group-hover:block"
                   >
                     <svg
                       className="size-6"
