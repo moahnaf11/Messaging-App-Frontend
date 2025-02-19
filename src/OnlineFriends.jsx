@@ -13,10 +13,10 @@ function OnlineFriends() {
         const user = getUser(friend);
         // Include all online, accepted friends if search is empty
         if (!search) {
-          return user.online && friend.status === "accepted";
+          return user.online && user.showOnlineStatus && friend.status === "accepted";
         }
         return (
-          user.online &&
+          user.online && user.showOnlineStatus &&
           friend.status === "accepted" &&
           user.username.toLowerCase().includes(search.toLowerCase())
         );
@@ -39,7 +39,7 @@ function OnlineFriends() {
       {filteredFriends && filteredFriends.length > 0 ? (
         filteredFriends.map((friend) => {
           const user = getUser(friend);
-          if (user.online) {
+          if (user.online && user.showOnlineStatus) {
             return (
               <div
                 className="flex items-center p-3 justify-between"

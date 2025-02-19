@@ -95,6 +95,7 @@ function Settings() {
         username: data.username,
         profilePicture: data.profilePicture,
         online: data.online,
+        showOnlineStatus: data.showOnlineStatus,
       });
     } catch (err) {
       console.log("failed in fetch request to update online status", err);
@@ -175,7 +176,9 @@ function Settings() {
             Online
             <input
               onChange={(e) => handleOnline(e)}
-              checked={userProfile && userProfile.online ? true : false}
+              checked={
+                userProfile && userProfile.showOnlineStatus ? true : false
+              }
               className="peer hidden"
               type="checkbox"
               id="check"

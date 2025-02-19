@@ -174,6 +174,7 @@ function Profile() {
           username: data.username,
           profilePicture: data.profilePicture,
           online: data.online,
+          showOnlineStatus: data.showOnlineStatus,
           status: data.status,
         });
       } catch (error) {
@@ -214,6 +215,7 @@ function Profile() {
         username: data.username,
         profilePicture: data.profilePicture,
         online: data.online,
+        showOnlineStatus: data.showOnlineStatus,
         status: data.status,
       });
       console.log("pic uploaded", data);
@@ -254,6 +256,7 @@ function Profile() {
         username: data.username,
         profilePicture: data.profilePicture,
         online: data.online,
+        showOnlineStatus: data.showOnlineStatus,
         status: data.status,
       });
       setDelPic(false);
@@ -307,7 +310,7 @@ function Profile() {
           <div className="relative w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full">
             <div
               className={`${
-                userProfile && userProfile.online
+                userProfile && userProfile.online && userProfile.showOnlineStatus
                   ? "bg-green-600"
                   : "bg-gray-500"
               } lg:size-8 md:size-6 size-5 rounded-full absolute bottom-0 right-0`}

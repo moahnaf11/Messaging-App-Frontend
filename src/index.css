@@ -10,7 +10,7 @@
 }
 
 body {
-  background-color: #1F2937;
+  background-color: #1f2937;
 }
 
 ::-webkit-scrollbar {
@@ -28,9 +28,21 @@ body::-webkit-scrollbar {
   margin-block: 0.5em;
 }
 
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #d1d5db;
+  border-radius: 100vw;
+  margin-block: 0.5em;
+}
+
 ::-webkit-scrollbar-thumb {
   background-color: #71717a;
   border: 2px solid #1f2937;
+  border-radius: 100vw;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #9CA3AF;
+  border: 2px solid #1f2937; /* Border for contrast */
   border-radius: 100vw;
 }
 

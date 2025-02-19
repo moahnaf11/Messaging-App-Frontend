@@ -61,7 +61,7 @@ function ListFriends() {
                     />
                     <div
                       className={`lg:size-5 size-4 absolute bottom-0 right-0 rounded-full ${
-                        user.online ? "bg-green-600" : "bg-gray-500"
+                        user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
                       } `}
                     ></div>
                   </button>

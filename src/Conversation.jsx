@@ -323,7 +323,7 @@ function Conversation() {
           />
           <div
             className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-              user && user.online ? "bg-green-600" : "bg-gray-500"
+              user && user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
             } `}
           ></div>
         </button>

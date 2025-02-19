@@ -22,6 +22,7 @@ import SentReq from "./SentReq.jsx";
 import ReceivedReq from "./ReceivedReq.jsx";
 import Conversation from "./Conversation.jsx";
 import ErrorPage from "./ErrorPage.jsx";
+import GroupConversation from "./GroupConversation.jsx";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
         ),
         children: [
           { path: "chat/:id", element: <Conversation /> },
+          { path: "group/:id", element: <GroupConversation /> },
           {
             path: "friends",
             element: <Friends />,
