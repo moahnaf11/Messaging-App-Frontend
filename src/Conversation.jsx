@@ -32,6 +32,7 @@ function Conversation() {
       ? friendObject.requestee
       : friendObject.requester
     : null;
+  console.log("user from conversation rerender", user);
 
   const groupedMessages = messages.length
     ? messages.reduce((acc, message) => {
@@ -87,17 +88,14 @@ function Conversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:3000/message/${id}`,
-          {
-            method: "GET",
-            signal,
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:3000/message/${id}`, {
+          method: "GET",
+          signal,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
           const data = await response.json();
@@ -167,17 +165,14 @@ function Conversation() {
     if (!MessageWithMedia) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:3000/message`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: sendMessage, receiverId: user.id }),
-          }
-        );
+        const response = await fetch(`http://localhost:3000/message`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content: sendMessage, receiverId: user.id }),
+        });
 
         if (!response.ok) {
           const data = await response.json();
@@ -209,16 +204,13 @@ function Conversation() {
         }
         formData.append("content", caption);
         formData.append("receiverId", user.id);
-        const response = await fetch(
-          `http://localhost:3000/message/media`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          }
-        );
+        const response = await fetch(`http://localhost:3000/message/media`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
 
         if (!response.ok) {
           const data = await response.json();
@@ -323,7 +315,9 @@ function Conversation() {
           />
           <div
             className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-              user && user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
+              user && user.online && user.showOnlineStatus
+                ? "bg-green-600"
+                : "bg-gray-500"
             } `}
           ></div>
         </button>

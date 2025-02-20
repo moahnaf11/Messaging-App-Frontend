@@ -1,4 +1,5 @@
-function ProfileDialog({ user, profDialog, closeProfileDialog }) {
+function ProfileDialog({ user, profDialog, getUser, closeProfileDialog }) {
+  console.log("user profile dialog rerendered", user);
   return (
     <>
       <dialog
@@ -75,7 +76,9 @@ function ProfileDialog({ user, profDialog, closeProfileDialog }) {
               />
               <div
                 className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-                  user && user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
+                  user && user.online && user.showOnlineStatus
+                    ? "bg-green-600"
+                    : "bg-gray-500"
                 } `}
               ></div>
             </div>

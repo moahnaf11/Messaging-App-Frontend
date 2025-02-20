@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
-import { ProfileDialogContext } from "./Chat";
 import socket from "../socket";
 
 function GroupConversation() {
   const { id } = useParams();
-  const { openProfileDialog } = useContext(ProfileDialogContext);
+
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
   const {
     mydata,
@@ -384,10 +383,7 @@ function GroupConversation() {
                           index !== 0 ? "mt-2" : ""
                         }`}
                       >
-                        <button
-                          onClick={() => openProfileDialog(message.sender)}
-                          className="relative size-10 rounded-full"
-                        >
+                        <div className="relative size-10 rounded-full">
                           <img
                             className="h-full rounded-full w-full object-cover"
                             src={
@@ -397,7 +393,7 @@ function GroupConversation() {
                             }
                             alt="prof pic"
                           />
-                        </button>
+                        </div>
                         <div>{message.sender.username}</div>
                       </div>
                     )}

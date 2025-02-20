@@ -26,6 +26,7 @@ function Chat() {
   const [friends, setFriends] = useState([]);
   const [groups, setGroups] = useState([]);
   const [mydata, setMyData] = useState(null);
+  const mydataRef = useRef(null);
   const [search, setSearch] = useState("");
   const profDialog = useRef(null);
   const addMemberDialog = useRef(null); // Reference to the dialog element
@@ -598,28 +599,75 @@ function Chat() {
 
   useEffect(() => {
     socket.on("receiveOnline", (data) => {
-      setFriends((prev) =>
-        prev.map((friend) => {
-          if (
-            friend.requesterId === data.id ||
-            friend.requesteeId === data.id
-          ) {
-            if (friend.requesterId === data.id) {
-              return {
-                ...friend,
-                requester: { ...data }, // Update requester info
-              };
-            } else {
-              return {
-                ...friend,
-                requestee: { ...data }, // Update requestee info
-              };
-            }
+      setFriends((prev) => {
+        // Check if the user is a friend before mapping
+        const isUserFriend = prev.some(
+          (friend) =>
+            friend.requesterId === data.id || friend.requesteeId === data.id
+        );
+
+        // If the user is not a friend, return the previous state immediately
+        if (!isUserFriend) return prev;
+
+        // If the user is a friend, proceed with mapping and updating
+        const newFriend = prev.map((friend) => {
+          if (friend.requesterId === data.id) {
+            // Update requester info
+            return {
+              ...friend,
+              requester: { ...data },
+            };
+          } else if (friend.requesteeId === data.id) {
+            // Update requestee info
+            return {
+              ...friend,
+              requestee: { ...data },
+            };
           } else {
-            return friend; // No update if it doesn't match
+            return friend;
           }
-        })
-      );
+        });
+        console.log("new friend", newFriend);
+        return newFriend;
+      });
+      setProfDisplay((prev) => {
+        if (prev && prev.id === data.id && profDialog.current.open) {
+          return data;
+        } else {
+          return prev;
+        }
+      });
+
+      setSelectedGroup((prevGroup) => {
+        if (!prevGroup || pathname.current !== `/group/${prevGroup.id}`)
+          return prevGroup; // Ensure there is a selected group
+
+        // Check if both you and the received user are in the selected group
+        const isUserInGroup = prevGroup.members.some(
+          (member) => member.userId === data.id
+        );
+        // console.log("mydata", mydataRef);
+        const amIInGroup = prevGroup.members.some(
+          (member) => member.userId === mydataRef.current.id
+        );
+        // console.log("inGroup", isUserInGroup, amIInGroup);
+        if (isUserInGroup && amIInGroup) {
+          console.log(`Updating user ${data.id} in Group ID: ${prevGroup.id}`);
+
+          const newSelectedGroup = {
+            ...prevGroup,
+            members: prevGroup.members.map((member) =>
+              member.userId === data.id
+                ? { ...member, user: { ...member.user, ...data } }
+                : member
+            ),
+          };
+          console.log("newSelectedGroup", newSelectedGroup);
+          return newSelectedGroup;
+        }
+
+        return prevGroup; // Return unchanged if conditions aren't met
+      });
     });
 
     socket.on("receiveFriendReq", (data) => {
@@ -900,6 +948,7 @@ function Chat() {
     const token = localStorage.getItem("token");
     const data = jwtDecode(token);
     setMyData(data);
+    mydataRef.current = data;
     socket.emit("login", data.id);
   }, []);
 
@@ -1092,6 +1141,7 @@ function Chat() {
       <ProfileDialog
         user={profDisplay}
         profDialog={profDialog}
+        getUser={getUser}
         closeProfileDialog={closeProfileDialog}
       />
       {/* 3rd column group info */}
@@ -1371,11 +1421,14 @@ function Chat() {
           {filteredMembers.length > 0 &&
             filteredMembers.map((member) => (
               <div key={member.id} className="flex items-center gap-2">
-                <div className="relative w-10 h-10">
+                <button
+                  onClick={() => openProfileDialog(member.user)}
+                  className="relative w-10 h-10"
+                >
                   <img
                     className="rounded-full w-full h-full object-cover"
                     src={
-                      member.user.usprofilePicture
+                      member.user.profilePicture
                         ? member.user.profilePicture
                         : "/default.jpg"
                     }
@@ -1383,10 +1436,12 @@ function Chat() {
                   />
                   <div
                     className={`lg:size-3 size-2 absolute bottom-0 right-0 rounded-full ${
-                      member.user.online && member.user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
+                      member.user.online && member.user.showOnlineStatus
+                        ? "bg-green-600"
+                        : "bg-gray-500"
                     }`}
                   ></div>
-                </div>
+                </button>
                 <div className="flex gap-2 items-center">
                   <span className="text-sm">
                     {mydata.id === member.user.id

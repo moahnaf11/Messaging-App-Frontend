@@ -96,6 +96,7 @@ function Settings() {
         profilePicture: data.profilePicture,
         online: data.online,
         showOnlineStatus: data.showOnlineStatus,
+        status: data.status,
       });
     } catch (err) {
       console.log("failed in fetch request to update online status", err);
