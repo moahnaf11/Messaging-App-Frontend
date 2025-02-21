@@ -172,9 +172,7 @@ function Chat() {
           if (group.id === groupId) {
             return data;
           } else {
-            return {
-              group,
-            };
+            return group;
           }
         });
       });

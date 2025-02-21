@@ -22,6 +22,10 @@ function Conversation() {
   const imageDialog = useRef(null);
   const [imageDisplay, setImageDisplay] = useState(null);
 
+  const messagesContainerRef = useRef(null);
+  const prevScroll = useRef(0);
+  const prevScrollTop = useRef(0);
+
   const friendObject =
     friends && person
       ? friends.find((friend) => friend.id === person.id)
@@ -45,32 +49,99 @@ function Conversation() {
       }, {})
     : null;
 
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    const handleScroll = () => {
+      prevScroll.current = container.scrollHeight;
+      prevScrollTop.current = container.scrollTop;
+      console.log(
+        "scroll details",
+        prevScroll.current,
+        prevScrollTop.current,
+        container.clientHeight,
+        prevScroll.current - prevScrollTop.current <= container.clientHeight
+      );
+    };
+
+    // Attach the scroll event listener
+    container.addEventListener("scroll", handleScroll);
+
+    // Cleanup function to remove event listener when component unmounts
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!messages.length) {
+      return;
+    }
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const oldScrollHeight = prevScroll.current;
+    prevScroll.current = container.scrollHeight;
+
+    // Check if the user is at the bottom before new messages arrive
+    console.log(
+      "scroll details",
+      oldScrollHeight,
+      prevScrollTop.current,
+      container.clientHeight,
+      container.scrollHeight,
+      prevScroll.current - prevScrollTop.current
+    );
+    const isAtBottom =
+      oldScrollHeight - prevScrollTop.current <= container.clientHeight;
+
+    console.log("isAtBottom", isAtBottom);
+
+    if (isAtBottom) {
+      // After React updates the DOM, scroll to the bottom
+      console.log("container scrollheight", container.scrollHeight);
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages.length]);
+
   // Listen for the 'receiveMessage' event
   useEffect(() => {
     // Setup the socket listener for incoming messages
     socket.on("receiveMessage", (messageData) => {
       // When a message is received, update the state
-      setMessages((prev) => [...prev, messageData.content]);
-    });
-
-    socket.on("receiveMediaMessage", (messageMedia) => {
-      setMessages((prev) => [...prev, messageMedia]);
-    });
-
-    socket.on("receiveDeleteMessage", (message) => {
-      setMessages((prev) => prev.filter((msg) => msg.id !== message.id));
-    });
-
-    socket.on("receiveUpdateMessage", (message) => {
-      setMessages((prev) =>
-        prev.map((msg) => {
-          if (msg.id !== message.id) {
-            return msg;
-          } else {
-            return message;
-          }
-        })
+      console.log(
+        "message details",
+        messageData,
+        messageData.content.friendId,
+        id,
+        messageData.content.friendId === id
       );
+      if (messageData.content.friendId === id) {
+        setMessages((prev) => [...prev, messageData.content]);
+      }
+    });
+
+    socket.on("receiveMediaMessage", ({ data, friendId }) => {
+      if (friendId === id) {
+        setMessages((prev) => [...prev, data]);
+      }
+    });
+
+    socket.on("receiveDeleteMessage", ({ data, friendId }) => {
+      if (friendId === id) {
+        setMessages((prev) => prev.filter((msg) => msg.id !== data.id));
+      }
+    });
+
+    socket.on("receiveUpdateMessage", ({ data, friendId }) => {
+      if (id === friendId) {
+        setMessages((prev) =>
+          prev.map((msg) => {
+            if (msg.id !== data.id) {
+              return msg;
+            } else {
+              return data;
+            }
+          })
+        );
+      }
     });
 
     // Cleanup the socket listener when the component unmounts
@@ -155,7 +226,11 @@ function Conversation() {
       const data = await response.json();
       console.log("message deleted successfully", data);
       setMessages((prev) => prev.filter((message) => message.id !== messageId));
-      socket.emit("deleteMessage", { data, receiverId: data.receiverId });
+      socket.emit("deleteMessage", {
+        data,
+        receiverId: data.receiverId,
+        friendId: id,
+      });
     } catch (err) {
       console.log("failed in fetch for deleting message", err);
     }
@@ -171,7 +246,11 @@ function Conversation() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ content: sendMessage, receiverId: user.id }),
+          body: JSON.stringify({
+            content: sendMessage,
+            receiverId: user.id,
+            friendId: id,
+          }),
         });
 
         if (!response.ok) {
@@ -204,6 +283,7 @@ function Conversation() {
         }
         formData.append("content", caption);
         formData.append("receiverId", user.id);
+        formData.append("friendId", id);
         const response = await fetch(`http://localhost:3000/message/media`, {
           method: "POST",
           headers: {
@@ -265,7 +345,11 @@ function Conversation() {
           }
         })
       );
-      socket.emit("updateMessage", { data, receiverId: data.receiverId });
+      socket.emit("updateMessage", {
+        data,
+        receiverId: data.receiverId,
+        friendId: id,
+      });
     } catch (err) {
       console.log("failed in fetch for updating message", err);
     }
@@ -324,7 +408,10 @@ function Conversation() {
         <div>{user ? user.username : null}</div>
       </section>
       {/* messages rendering */}
-      <section className="flex flex-col min-h-0 flex-1 overflow-y-auto">
+      <section
+        ref={messagesContainerRef}
+        className="flex flex-col min-h-0 flex-1 overflow-y-auto"
+      >
         {groupedMessages ? (
           Object.keys(groupedMessages).map((date) => (
             <div key={date}>

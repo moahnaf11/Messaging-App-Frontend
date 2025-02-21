@@ -31,6 +31,10 @@ function GroupConversation() {
   const [sendMessage, setSendMessage] = useState("");
   const lastSenderIdRef = useRef(null); // Initialize a ref to store the last sender ID
 
+  const messagesContainerRef = useRef(null);
+  const prevScroll = useRef(0);
+  const prevScrollTop = useRef(0);
+
   console.log("messages", messages);
 
   // Group messages by date
@@ -216,31 +220,91 @@ function GroupConversation() {
   }
 
   useEffect(() => {
+    const container = messagesContainerRef.current;
+    const handleScroll = () => {
+      prevScroll.current = container.scrollHeight;
+      prevScrollTop.current = container.scrollTop;
+      console.log(
+        "scroll details",
+        prevScroll.current,
+        prevScrollTop.current,
+        container.clientHeight,
+        prevScroll.current - prevScrollTop.current <= container.clientHeight
+      );
+    };
+
+    // Attach the scroll event listener
+    container.addEventListener("scroll", handleScroll);
+
+    // Cleanup function to remove event listener when component unmounts
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!messages.length) {
+      return;
+    }
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const oldScrollHeight = prevScroll.current;
+    prevScroll.current = container.scrollHeight;
+
+    // Check if the user is at the bottom before new messages arrive
+    console.log(
+      "scroll details",
+      oldScrollHeight,
+      prevScrollTop.current,
+      container.clientHeight,
+      container.scrollHeight,
+      prevScroll.current - prevScrollTop.current
+    );
+    const isAtBottom =
+      oldScrollHeight - prevScrollTop.current <= container.clientHeight;
+
+    console.log("isAtBottom", isAtBottom);
+
+    if (isAtBottom) {
+      // After React updates the DOM, scroll to the bottom
+      console.log("container scrollheight", container.scrollHeight);
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
     // Setup the socket listener for incoming messages
     socket.on("receiveGroupMessage", (messageData) => {
       // When a message is received, update the state
-      setMessages((prev) => [...prev, messageData.content]);
+      if (id === messageData.groupId) {
+        setMessages((prev) => [...prev, messageData.content]);
+      }
     });
 
-    socket.on("receiveUpdatedGroupMessage", (data) => {
+    socket.on("receiveUpdatedGroupMessage", ({ data, groupId }) => {
       // When a message is received, update the state
-      setMessages((prev) =>
-        prev.map((message) => {
-          if (message.id !== data.id) {
-            return message;
-          } else {
-            return data;
-          }
-        })
-      );
+      if (id === groupId) {
+        setMessages((prev) =>
+          prev.map((message) => {
+            if (message.id !== data.id) {
+              return message;
+            } else {
+              return data;
+            }
+          })
+        );
+      }
     });
 
-    socket.on("receiveDeleteGroupMessage", (data) => {
-      setMessages((prev) => prev.filter((message) => message.id !== data.id));
+    socket.on("receiveDeleteGroupMessage", ({ data, groupId }) => {
+      if (id === groupId) {
+        setMessages((prev) => prev.filter((message) => message.id !== data.id));
+      }
     });
 
-    socket.on("receiveGroupMediaMessage", (data) => {
-      setMessages((prev) => [...prev, data]);
+    socket.on("receiveGroupMediaMessage", ({ data, groupId }) => {
+      if (id === groupId) {
+        setMessages((prev) => [...prev, data]);
+      }
     });
 
     // Cleanup the socket listener when the component unmounts
@@ -347,7 +411,10 @@ function GroupConversation() {
         <div>{selectedGroup ? selectedGroup.name : null}</div>
       </section>
       {/* messages rendering */}
-      <section className="flex flex-col min-h-0 flex-1 overflow-y-auto">
+      <section
+        ref={messagesContainerRef}
+        className="flex flex-col min-h-0 flex-1 overflow-y-auto"
+      >
         {Object.keys(groupedMessages).length ? (
           Object.keys(groupedMessages).map((date) => (
             <div key={date}>
@@ -376,7 +443,7 @@ function GroupConversation() {
                 }
 
                 return (
-                  <div>
+                  <div key={message.id}>
                     {message.senderId !== mydata.id && !isSameSender && (
                       <div
                         className={`flex items-center gap-2 text-xs ${
@@ -398,7 +465,6 @@ function GroupConversation() {
                       </div>
                     )}
                     <div
-                      key={message.id}
                       className={`rounded-lg p-2 max-w-[50%] ${
                         message.senderId === mydata.id
                           ? "bg-green-400 text-black ml-auto"

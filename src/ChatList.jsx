@@ -14,6 +14,7 @@ function ChatList({
   groups,
   mydata,
 }) {
+  // console.log("groups in chatlist", groups);
   const visibleGroups =
     groups && mydata
       ? groups.filter((group) =>
@@ -92,7 +93,9 @@ function ChatList({
                         />
                         <div
                           className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-                            user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
+                            user.online && user.showOnlineStatus
+                              ? "bg-green-600"
+                              : "bg-gray-500"
                           } `}
                         ></div>
                       </button>
@@ -322,7 +325,9 @@ function ChatList({
                       />
                       <div
                         className={`lg:size-4 size-3 absolute bottom-0 right-0 rounded-full ${
-                          user.online && user.showOnlineStatus ? "bg-green-600" : "bg-gray-500"
+                          user.online && user.showOnlineStatus
+                            ? "bg-green-600"
+                            : "bg-gray-500"
                         } `}
                       ></div>
                     </button>
