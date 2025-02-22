@@ -6,10 +6,11 @@ import { ProfileDialogContext } from "./Chat";
 
 function Conversation() {
   const { id } = useParams();
+  console.log("friend id", id);
   const { openProfileDialog } = useContext(ProfileDialogContext);
   const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-  const { mydata, friends } = useOutletContext();
+  const { mydata, friends, setFriends } = useOutletContext();
   const [messages, setMessages] = useState([]);
   const [person, setPerson] = useState(null);
   const [sendMessage, setSendMessage] = useState("");
@@ -151,7 +152,50 @@ function Conversation() {
       socket.off("receiveDeleteMessage");
       socket.off("receiveUpdateMessage");
     };
-  }, []);
+  }, [id]);
+
+  // clear all notifications
+  useEffect(() => {
+    const deleteNotifications = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:3000/friend/${id}/noti`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            // body: JSON.stringify({
+            //   receiverId: userId, // Your user ID
+            //   friendId: friendId, // The friend's ID from URL
+            // }),
+          }
+        );
+
+        if (!response.ok) {
+          const data = await response.json();
+          console.log(data.error);
+        }
+        const data = await response.json();
+        setFriends((prev) =>
+          prev.map((friend) => {
+            if (friend.id === id) {
+              return data;
+            } else {
+              return friend;
+            }
+          })
+        );
+        console.log("Notifications deleted successfully!");
+      } catch (error) {
+        console.log("Error deleting notifications:", error);
+      }
+    };
+
+    deleteNotifications();
+  }, [id]);
 
   useEffect(() => {
     const controller = new AbortController(); // Create an AbortController

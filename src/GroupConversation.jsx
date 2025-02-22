@@ -314,7 +314,7 @@ function GroupConversation() {
       socket.off("receiveDeleteGroupMessage");
       socket.off("receiveGroupMediaMessage");
     };
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const controller = new AbortController(); // Create an AbortController

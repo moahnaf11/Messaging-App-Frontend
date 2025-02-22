@@ -852,6 +852,42 @@ function Chat() {
       });
     });
 
+    socket.on("receiveFriendNotification", async (notification) => {
+      const { id } = notification;
+      if (pathname.current !== `/chat/${id}`) {
+        setFriends((prev) =>
+          prev.map((friend) => {
+            if (friend.id === id) {
+              return notification;
+            } else {
+              return friend;
+            }
+          })
+        );
+        // try {
+        //   const token = localStorage.getItem("token");
+        //   const response = await fetch("http://localhost:3000/friend", {
+        //     method: "GET",
+        //     headers: {
+        //       Authorization: `Bearer ${localStorage.getItem("token")}`,
+        //       "Content-Type": "application/json",
+        //     },
+        //   });
+
+        //   if (!response.ok) {
+        //     const friends = await response.json();
+        //     console.log("failed to fetch friends", friends.error);
+        //   }
+
+        //   const friends = await response.json();
+        //   console.log("Updated friends list:", friends);
+        //   setFriends(friends);
+        // } catch (error) {
+        //   console.log("Error fetching friends:", error);
+        // }
+      }
+    });
+
     return () => {
       socket.off("receiveOnline");
       socket.off("receiveFriendReq");
@@ -868,6 +904,7 @@ function Chat() {
       socket.off("receiveMemberRole");
       socket.off("receiveUpdateGroupPhoto");
       socket.off("receiveOnlyAdminMode");
+      socket.off("receiveFriendNotification");
     };
   }, [navigate]);
 
