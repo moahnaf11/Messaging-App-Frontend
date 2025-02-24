@@ -864,29 +864,89 @@ function Chat() {
             }
           })
         );
-        // try {
-        //   const token = localStorage.getItem("token");
-        //   const response = await fetch("http://localhost:3000/friend", {
-        //     method: "GET",
-        //     headers: {
-        //       Authorization: `Bearer ${localStorage.getItem("token")}`,
-        //       "Content-Type": "application/json",
-        //     },
-        //   });
-
-        //   if (!response.ok) {
-        //     const friends = await response.json();
-        //     console.log("failed to fetch friends", friends.error);
-        //   }
-
-        //   const friends = await response.json();
-        //   console.log("Updated friends list:", friends);
-        //   setFriends(friends);
-        // } catch (error) {
-        //   console.log("Error fetching friends:", error);
-        // }
       }
     });
+
+    socket.on(
+      "receiveGroupNotification",
+      async ({ senderId, groupId, notification }) => {
+        if (pathname.current === `/group/${groupId}`) {
+          try {
+            // Get token from localStorage
+            const token = localStorage.getItem("token");
+            // Fetch the notifications for this group from the backend (localhost:3000)
+            const response = await fetch(
+              `http://localhost:3000/group/noti/delete`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`, // Include Bearer token in the Authorization header
+                },
+              }
+            );
+
+            if (!response.ok) {
+              const data = await response.json();
+              console.log("failed to delete notification", data.error);
+            }
+
+            // const data = await response.json();
+
+            // // Update the groups state with the new notification data
+            // setGroups((prevGroups) => {
+            //   const group = prevGroups.map((group) => {
+            //     if (group.id === groupId) {
+            //       return data;
+            //     }
+            //     return group;
+            //   });
+            //   console.log("group", group);
+            //   return group;
+            // });
+          } catch (error) {
+            console.log("Error fetching notifications:", error);
+          }
+        } else {
+          try {
+            // Get token from localStorage
+            const token = localStorage.getItem("token");
+            // Fetch the notifications for this group from the backend (localhost:3000)
+            const response = await fetch(
+              `http://localhost:3000/group/${groupId}/group-notis`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`, // Include Bearer token in the Authorization header
+                },
+              }
+            );
+
+            if (!response.ok) {
+              const data = await response.json();
+              console.log("failed to update notifications", data.error);
+            }
+
+            const data = await response.json();
+
+            // Update the groups state with the new notification data
+            setGroups((prevGroups) => {
+              const group = prevGroups.map((group) => {
+                if (group.id === groupId) {
+                  return data;
+                }
+                return group;
+              });
+              console.log("group", group);
+              return group;
+            });
+          } catch (error) {
+            console.log("Error fetching notifications:", error);
+          }
+        }
+      }
+    );
 
     return () => {
       socket.off("receiveOnline");
@@ -905,6 +965,7 @@ function Chat() {
       socket.off("receiveUpdateGroupPhoto");
       socket.off("receiveOnlyAdminMode");
       socket.off("receiveFriendNotification");
+      socket.off("receiveGroupNotification");
     };
   }, [navigate]);
 

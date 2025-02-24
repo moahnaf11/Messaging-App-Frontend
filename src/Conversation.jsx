@@ -98,7 +98,7 @@ function Conversation() {
     if (isAtBottom) {
       // After React updates the DOM, scroll to the bottom
       console.log("container scrollheight", container.scrollHeight);
-      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      container.scrollTop = container.scrollHeight;
     }
   }, [messages.length]);
 

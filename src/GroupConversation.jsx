@@ -15,6 +15,7 @@ function GroupConversation() {
     selectedGroup,
     setShowGroupInfo,
     myRecord,
+    setGroups,
   } = useOutletContext();
   const [updateMessageIdentifier, setUpdateMessageIdentifier] = useState(null);
   // const [myGroup, setMyGroup] = useState(null);
@@ -313,6 +314,54 @@ function GroupConversation() {
       socket.off("receiveUpdatedGroupMessage");
       socket.off("receiveDeleteGroupMessage");
       socket.off("receiveGroupMediaMessage");
+    };
+  }, [id]);
+
+  useEffect(() => {
+    const controller = new AbortController(); // Create an AbortController
+    const signal = controller.signal;
+    async function deleteGroupConversationNotifs(id) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:3000/group/${id}/delete-notifications`,
+          {
+            method: "DELETE",
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const data = await response.json();
+          console.log(data.error);
+          return;
+        }
+        const data = await response.json();
+        console.log("after deleting notis group", data);
+        setGroups((prev) =>
+          prev.map((group) => {
+            if (group.id === data.id) {
+              return data;
+            } else {
+              return group;
+            }
+          })
+        );
+      } catch (err) {
+        if (err.name === "AbortError") {
+          console.log("Fetch request aborted");
+          return;
+        }
+        console.log("failed in fetch for deleting group notifs", err);
+      }
+    }
+    deleteGroupConversationNotifs(id);
+    return () => {
+      controller.abort();
     };
   }, [id]);
 

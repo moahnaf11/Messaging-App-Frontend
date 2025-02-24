@@ -17,6 +17,7 @@ function Settings() {
     setisLoggedIn(false);
     localStorage.removeItem("token");
     navigate("/");
+    socket.disconnect();
   }
 
   useEffect(() => {
