@@ -50,6 +50,8 @@ function Chat() {
   const [groupName, setGroupName] = useState("");
 
   const [isAdminOnly, setIsAdminOnly] = useState(false);
+  // notifications
+  const [showNoti, setShowNoti] = useState(false);
 
   // archived toggling
   const [showArchived, setShowArchived] = useState(false);
@@ -536,13 +538,15 @@ function Chat() {
         const data = await response.json();
         console.log("Group name updated successfully:", data);
         setGroups((prev) => {
-          return prev.map((group) => {
+          const newState = prev.map((group) => {
             if (group.id === groupId) {
               return data;
             } else {
               return group;
             }
           });
+          console.log("new", newState);
+          return newState;
         });
         setSelectedGroup((prev) => {
           if (
@@ -816,7 +820,12 @@ function Chat() {
       setGroups((prev) => {
         return prev.map((group) => {
           if (group.id === data.id) {
-            return data;
+            return {
+              ...group,
+              name: data.name,
+              picture: data.picture,
+              public_id: data.public_id,
+            };
           } else {
             return group;
           }
@@ -864,6 +873,30 @@ function Chat() {
             }
           })
         );
+      } else {
+        // delete notification
+        try {
+          // Get token from localStorage
+          const token = localStorage.getItem("token");
+          // Fetch the notifications for this group from the backend (localhost:3000)
+          const response = await fetch(
+            `http://localhost:3000/friend/${id}/noti`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Include Bearer token in the Authorization header
+              },
+            }
+          );
+
+          if (!response.ok) {
+            const data = await response.json();
+            console.log("failed to delete friend notification", data.error);
+          }
+        } catch (error) {
+          console.log("Error fetching notifications:", error);
+        }
       }
     });
 
@@ -1045,6 +1078,9 @@ function Chat() {
     const data = jwtDecode(token);
     setMyData(data);
     mydataRef.current = data;
+    if (!socket.connected) {
+      socket.connect();
+    }
     socket.emit("login", data.id);
   }, []);
 
@@ -1191,12 +1227,15 @@ function Chat() {
           toggleMenu={toggleMenu}
           updateChatDisplay={updateChatDisplay}
           acceptedFriends={acceptedFriends}
+          friends={friends}
           getUser={getUser}
           search={search}
           openProfileDialog={openProfileDialog}
           showArchived={showArchived}
           updateGroupChatDisplay={updateGroupChatDisplay}
           mydata={mydata}
+          showNoti={showNoti}
+          setShowNoti={setShowNoti}
         />
       </section>
       {!checkMobile() && (
@@ -1228,6 +1267,7 @@ function Chat() {
                   myGroup,
                   setMyGroup,
                   myRecord,
+                  showNoti,
                 }}
               />
             </UpdateChatDisplayContext.Provider>

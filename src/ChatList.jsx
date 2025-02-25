@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function ChatList({
   updateChatDisplay,
@@ -13,70 +14,209 @@ function ChatList({
   showArchived,
   groups,
   mydata,
+  friends,
+  showNoti,
+  setShowNoti,
 }) {
+  const [formattedArchived, setFormattedArchived] = useState([]);
+  const [formattedUnarchived, setFormattedUnrchived] = useState([]);
   // group chat notification
-  const getNotificationCount = (group) => {
-    return group.GroupChatNotification.reduce((count, notification) => {
-      return count + notification.GroupChatNotificationRecipient.length;
-    }, 0);
-  };
   // console.log("groups in chatlist", groups);
-  const visibleGroups =
-    groups && mydata
-      ? groups.filter((group) =>
-          group.members.some(
-            (member) => member.userId === mydata.id && !member.archived
-          )
-        )
-      : [];
 
-  const archivedGroups =
-    groups && mydata
-      ? groups.filter((group) =>
-          group.members.some(
-            (member) => member.userId === mydata.id && member.archived // Check for archived status
-          )
-        )
-      : [];
+  // useEffect for setting archive and unarchived
+  useEffect(() => {
+    if (!showArchived) {
+      const visibleGroups =
+        groups && mydata
+          ? groups.filter((group) =>
+              group.members.some(
+                (member) => member.userId === mydata.id && !member.archived
+              )
+            )
+          : [];
+
+      const formattedVisibleGroups = visibleGroups.map((group) => ({
+        type: "group",
+        id: group.id,
+        name: group.name,
+        picture: group.picture,
+        notification: group.GroupChatNotification.reduce(
+          (count, notification) =>
+            count + (notification.GroupChatNotificationRecipient?.length || 0),
+          0
+        ),
+      }));
+
+      console.log(formattedVisibleGroups);
+
+      // visible chats
+      // unarchived chats
+      const formattedUnarchivedChats = mydata
+        ? acceptedFriends
+            .filter((friend) => {
+              const user = getUser(friend);
+              console.log("user", user);
+              if (user.id === friend.requester.id) {
+                return friend.requestee_display === "unarchived";
+              } else if (user.id === friend.requestee.id) {
+                return friend.requester_display === "unarchived";
+              }
+              return false;
+            })
+            .map((friend) => ({
+              ...friend, // Keep all properties from friend
+              type: "friend",
+              notification: friend.Notification
+                ? friend.Notification.length
+                : 0, // Ensure no error if Notification is undefined
+            }))
+        : [];
+
+      // formatted visible stuff
+      const formattedUnarchivedData = [
+        ...formattedUnarchivedChats,
+        ...formattedVisibleGroups,
+      ].sort(
+        (a, b) => b.notification - a.notification // Sort from highest to lowest
+      );
+      const hasNotifications = formattedUnarchivedData.some(
+        (item) => item.notification > 0
+      );
+      setShowNoti((prev) =>
+        prev === hasNotifications ? prev : hasNotifications
+      );
+      setFormattedUnrchived([...formattedUnarchivedData]);
+    } else {
+      const archivedGroups =
+        groups && mydata
+          ? groups.filter((group) =>
+              group.members.some(
+                (member) => member.userId === mydata.id && member.archived // Check for archived status
+              )
+            )
+          : [];
+
+      const formattedArchivedGroups = archivedGroups.map((group) => ({
+        id: group.id,
+        type: "group",
+        name: group.name,
+        picture: group.picture,
+        notification: group.GroupChatNotification.reduce(
+          (count, notification) =>
+            count + (notification.GroupChatNotificationRecipient?.length || 0),
+          0
+        ),
+      }));
+
+      console.log(formattedArchivedGroups);
+
+      // friends
+      const formattedArchivedChats = mydata
+        ? acceptedFriends
+            .filter((friend) => {
+              const user = getUser(friend);
+              console.log("user", user);
+              if (user.id === friend.requester.id) {
+                return friend.requestee_display === "archived";
+              } else if (user.id === friend.requestee.id) {
+                return friend.requester_display === "archived";
+              }
+              return false;
+            })
+            .map((friend) => ({
+              ...friend, // Keep all properties from friend
+              type: "friend",
+              notification: friend.Notification
+                ? friend.Notification.length
+                : 0, // Ensure no error if Notification is undefined
+            }))
+        : [];
+
+      // all archived combined
+      const formattedArchivedData = [
+        ...formattedArchivedChats,
+        ...formattedArchivedGroups,
+      ].sort(
+        (a, b) => b.notification - a.notification // Sort by notification count (highest to lowest)
+      );
+
+      console.log(formattedArchivedData);
+      const hasNotifications = formattedArchivedData.some(
+        (item) => item.notification > 0
+      );
+      setShowNoti((prev) =>
+        prev === hasNotifications ? prev : hasNotifications
+      );
+      setFormattedArchived([...formattedArchivedData]);
+    }
+  }, [groups, friends, showArchived]);
 
   if (showArchived) {
-    console.log("original", acceptedFriends);
-    const archivedChats = mydata
-      ? acceptedFriends
-          .filter((friend) => {
-            const user = getUser(friend);
-            console.log("user", user);
-            if (user.id === friend.requester.id) {
-              return friend.requestee_display === "archived";
-            } else if (user.id === friend.requestee.id) {
-              return friend.requester_display === "archived";
-            }
-            return false;
-          })
-          .sort((a, b) => {
-            // Sort by the length of the notifications array
-            return b.Notification.length - a.Notification.length; // descending order
-          })
-      : null;
-    console.log("archived chats", archivedChats);
+    // join archived groups and chats
+    // const archivedGroups =
+    //   groups && mydata
+    //     ? groups.filter((group) =>
+    //         group.members.some(
+    //           (member) => member.userId === mydata.id && member.archived // Check for archived status
+    //         )
+    //       )
+    //     : [];
+
+    // const formattedArchivedGroups = archivedGroups.map((group) => ({
+    //   id: group.id,
+    //   type: "group",
+    //   name: group.name,
+    //   picture: group.picture,
+    //   notification: group.GroupChatNotification.reduce(
+    //     (count, notification) =>
+    //       count + (notification.GroupChatNotificationRecipient?.length || 0),
+    //     0
+    //   ),
+    // }));
+
+    // console.log(formattedArchivedGroups);
+
+    // // friends
+    // const formattedArchivedChats = mydata
+    //   ? acceptedFriends
+    //       .filter((friend) => {
+    //         const user = getUser(friend);
+    //         console.log("user", user);
+    //         if (user.id === friend.requester.id) {
+    //           return friend.requestee_display === "archived";
+    //         } else if (user.id === friend.requestee.id) {
+    //           return friend.requester_display === "archived";
+    //         }
+    //         return false;
+    //       })
+    //       .map((friend) => ({
+    //         ...friend, // Keep all properties from friend
+    //         type: "friend",
+    //         notification: friend.Notification ? friend.Notification.length : 0, // Ensure no error if Notification is undefined
+    //       }))
+    //   : [];
+
+    // // all archived combined
+    // const formattedArchived = [
+    //   ...formattedArchivedChats,
+    //   ...formattedArchivedGroups,
+    // ].sort(
+    //   (a, b) => b.notification - a.notification // Sort by notification count (highest to lowest)
+    // );
+
+    // console.log(formattedArchived);
+
     return (
       <section className={`flex-1 min-h-0 overflow-y-auto`}>
-        {archivedChats && archivedChats.length > 0
-          ? archivedChats
-              .filter((friend) => {
-                const user = getUser(friend);
-                if (!search) {
-                  return true;
-                }
-                return user.username
-                  .toLowerCase()
-                  .includes(search.toLowerCase());
-              })
-              .map((friend) => {
-                const user = getUser(friend);
+        {/* render archived */}
+        {formattedArchived && formattedArchived.length > 0 ? (
+          formattedArchived.map((archived) => {
+            if (archived.type === "friend") {
+              const user = getUser(archived);
+              if (user.username.toLowerCase().includes(search.toLowerCase())) {
                 return (
                   <NavLink
-                    to={`/chat/${friend.id}`}
+                    to={`/chat/${archived.id}`}
                     className={({ isActive }) =>
                       `flex group relative hover:bg-gray-700 items-center p-3 justify-between ${
                         isActive
@@ -84,7 +224,7 @@ function ChatList({
                           : "bg-gray-800 border-l-4 border-gray-800"
                       }`
                     }
-                    key={friend.id}
+                    key={archived.id}
                   >
                     <div className="flex items-center gap-5">
                       <button
@@ -115,16 +255,16 @@ function ChatList({
                       <div>{user.username}</div>
                     </div>
                     <div className="flex items-center gap-1">
-                      {mydata && friend.Notification.length > 0 && (
+                      {archived.notification > 0 && (
                         <div className="text-white text-xs lg:text-sm rounded-full bg-green-600 p-1">
-                          {friend.Notification.length}
+                          {archived.notification}
                         </div>
                       )}
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          toggleMenu(friend.id);
+                          toggleMenu(archived.id);
                         }}
                         className="rounded-full p-1 lg:hidden lg:group-hover:block"
                       >
@@ -168,10 +308,10 @@ function ChatList({
                         </svg>
                       </button>
                     </div>
-                    {openMenu === friend.id && (
+                    {openMenu === archived.id && (
                       <div
                         ref={menuRef}
-                        key={`menu + ${friend.id}`}
+                        key={`menu + ${archived.id}`}
                         className="absolute z-10 bg-white p-2 rounded-md text-black right-0 top-0 h-min w-36"
                       >
                         <button
@@ -179,7 +319,7 @@ function ChatList({
                             e.preventDefault();
                             e.stopPropagation();
                             // function to unarchive chat
-                            updateChatDisplay(friend.id, "unarchived");
+                            updateChatDisplay(archived.id, "unarchived");
                           }}
                           className="p-2 text-sm hover:bg-gray-400 w-full block"
                         >
@@ -190,7 +330,7 @@ function ChatList({
                             e.preventDefault();
                             e.stopPropagation();
                             // function to remove chat
-                            updateChatDisplay(friend.id, "hidden");
+                            updateChatDisplay(archived.id, "hidden");
                           }}
                           className="p-2 text-sm hover:bg-gray-400 w-full block"
                         >
@@ -200,20 +340,12 @@ function ChatList({
                     )}
                   </NavLink>
                 );
-              })
-          : null}
-        {Array.isArray(archivedGroups) && archivedGroups.length > 0
-          ? archivedGroups
-              .filter((group) => {
-                if (!search) {
-                  return true; // If there's no search input, show all groups
-                }
-                return group.name.toLowerCase().includes(search.toLowerCase());
-              })
-              .map((group) => {
+              }
+            } else {
+              if (archived.name.toLowerCase().includes(search.toLowerCase())) {
                 return (
                   <NavLink
-                    to={`/group/${group.id}`}
+                    to={`/group/${archived.id}`}
                     className={({ isActive }) =>
                       `flex group hover:bg-gray-700 items-center p-3 justify-between relative ${
                         isActive
@@ -221,7 +353,7 @@ function ChatList({
                           : "bg-gray-800 border-l-4 border-gray-800"
                       }`
                     }
-                    key={group.id}
+                    key={archived.id}
                   >
                     <div className="flex items-center gap-5">
                       <button
@@ -235,102 +367,140 @@ function ChatList({
                         {/* group icon image */}
                         <img
                           className="rounded-full h-full w-full object-cover"
-                          src={group.picture ? group.picture : "/group.png"}
+                          src={
+                            archived.picture ? archived.picture : "/group.png"
+                          }
                           alt="profile picture"
                         />
                       </button>
-                      <div>{group.name}</div>
+                      <div>{archived.name}</div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        updateGroupChatDisplay(group.id, false);
-                      }}
-                      className="lg:hidden lg:group-hover:block p-1"
-                    >
-                      <svg
-                        className="size-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div className="flex items-center gap-1">
+                      {archived.notification > 0 && (
+                        <div className="text-white text-xs lg:text-sm rounded-full bg-green-600 p-1">
+                          {archived.notification}
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          updateGroupChatDisplay(archived.id, false);
+                        }}
+                        className="lg:hidden lg:group-hover:block p-1"
                       >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g
-                          id="SVGRepo_tracerCarrier"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        ></g>
-                        <g id="SVGRepo_iconCarrier">
-                          {" "}
-                          <path
-                            d="M7 20H6C4.89543 20 4 19.1046 4 18V8H20V18C20 19.1046 19.1046 20 18 20H17"
-                            stroke="#ffffff"
-                            stroke-width="2"
+                        <svg
+                          className="size-5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                          <g
+                            id="SVGRepo_tracerCarrier"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                          ></path>{" "}
-                          <path
-                            d="M6 4H18L20 8H4L6 4Z"
-                            stroke="#ffffff"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>{" "}
-                          <path
-                            d="M12 20L12 14M12 14L9.5 16.5M12 14L14.5 16.5"
-                            stroke="#ffffff"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>{" "}
-                        </g>
-                      </svg>
-                    </button>
+                          ></g>
+                          <g id="SVGRepo_iconCarrier">
+                            {" "}
+                            <path
+                              d="M7 20H6C4.89543 20 4 19.1046 4 18V8H20V18C20 19.1046 19.1046 20 18 20H17"
+                              stroke="#ffffff"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            ></path>{" "}
+                            <path
+                              d="M6 4H18L20 8H4L6 4Z"
+                              stroke="#ffffff"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            ></path>{" "}
+                            <path
+                              d="M12 20L12 14M12 14L9.5 16.5M12 14L14.5 16.5"
+                              stroke="#ffffff"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            ></path>{" "}
+                          </g>
+                        </svg>
+                      </button>
+                    </div>
                   </NavLink>
                 );
-              })
-          : null}
-        {/* Show "No chats found" if both are empty */}
-        {(!Array.isArray(archivedChats) || archivedChats.length === 0) &&
-        (!Array.isArray(archivedGroups) || archivedGroups.length === 0) ? (
+              }
+            }
+          })
+        ) : (
           <div className="font-bold font-custom">No Archived Chats found</div>
-        ) : null}
+        )}
       </section>
     );
   } else {
-    const UnarchivedChats = mydata
-      ? acceptedFriends.filter((friend) => {
-          const user = getUser(friend);
-          console.log("user", user);
-          if (user.id === friend.requester.id) {
-            return friend.requestee_display === "unarchived";
-          } else if (user.id === friend.requestee.id) {
-            return friend.requester_display === "unarchived";
-          }
-          return false;
-        })
-      : null;
+    // const visibleGroups =
+    //   groups && mydata
+    //     ? groups.filter((group) =>
+    //         group.members.some(
+    //           (member) => member.userId === mydata.id && !member.archived
+    //         )
+    //       )
+    //     : [];
+
+    // const formattedVisibleGroups = visibleGroups.map((group) => ({
+    //   type: "group",
+    //   id: group.id,
+    //   name: group.name,
+    //   picture: group.picture,
+    //   notification: group.GroupChatNotification.reduce(
+    //     (count, notification) =>
+    //       count + (notification.GroupChatNotificationRecipient?.length || 0),
+    //     0
+    //   ),
+    // }));
+
+    // console.log(formattedVisibleGroups);
+
+    // // visible chats
+    // // unarchived chats
+    // const formattedUnarchivedChats = mydata
+    //   ? acceptedFriends
+    //       .filter((friend) => {
+    //         const user = getUser(friend);
+    //         console.log("user", user);
+    //         if (user.id === friend.requester.id) {
+    //           return friend.requestee_display === "unarchived";
+    //         } else if (user.id === friend.requestee.id) {
+    //           return friend.requester_display === "unarchived";
+    //         }
+    //         return false;
+    //       })
+    //       .map((friend) => ({
+    //         ...friend, // Keep all properties from friend
+    //         type: "friend",
+    //         notification: friend.Notification ? friend.Notification.length : 0, // Ensure no error if Notification is undefined
+    //       }))
+    //   : [];
+
+    // // formatted visible stuff
+    // const formattedUnarchived = [
+    //   ...formattedUnarchivedChats,
+    //   ...formattedVisibleGroups,
+    // ].sort(
+    //   (a, b) => b.notification - a.notification // Sort from highest to lowest
+    // );
     return (
       <section className={`flex-1 min-h-0 overflow-y-auto`}>
-        {UnarchivedChats && UnarchivedChats.length > 0
-          ? UnarchivedChats.filter((friend) => {
-              // console.log("friend", friend);
-              const user = getUser(friend);
-              if (!search) {
-                return true;
-              }
-              return user.username.toLowerCase().includes(search.toLowerCase());
-            })
-              .sort((a, b) => {
-                // Sort by the length of the notifications array
-                return b.Notification.length - a.Notification.length; // descending order
-              })
-              .map((friend) => {
-                const user = getUser(friend);
+        {/* render unarchived based on type  */}
+        {formattedUnarchived && formattedUnarchived.length > 0 ? (
+          formattedUnarchived.map((unarchived) => {
+            if (unarchived.type === "friend") {
+              const user = getUser(unarchived);
+              if (user.username.toLowerCase().includes(search.toLowerCase())) {
                 return (
                   <NavLink
-                    to={`/chat/${friend.id}`}
+                    to={`/chat/${unarchived.id}`}
                     className={({ isActive }) =>
                       `flex group hover:bg-gray-700 items-center p-3 justify-between relative ${
                         isActive
@@ -338,7 +508,7 @@ function ChatList({
                           : "bg-gray-800 border-l-4 border-gray-800"
                       }`
                     }
-                    key={friend.id}
+                    key={unarchived.id}
                   >
                     <div className="flex items-center gap-5">
                       <button
@@ -369,16 +539,16 @@ function ChatList({
                       <div>{user.username}</div>
                     </div>
                     <div className="flex items-center gap-1">
-                      {mydata && friend.Notification.length > 0 && (
+                      {unarchived.notification > 0 && (
                         <div className="text-white text-xs lg:text-sm rounded-full bg-green-600 p-1">
-                          {friend.Notification.length}
+                          {unarchived.notification}
                         </div>
                       )}
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          toggleMenu(friend.id);
+                          toggleMenu(unarchived.id);
                         }}
                         className="rounded-full p-1 lg:hidden lg:group-hover:block"
                       >
@@ -422,10 +592,10 @@ function ChatList({
                         </svg>
                       </button>
                     </div>
-                    {openMenu === friend.id && (
+                    {openMenu === unarchived.id && (
                       <div
                         ref={menuRef}
-                        key={`menu + ${friend.id}`}
+                        key={`menu + ${unarchived.id}`}
                         className="absolute z-10 bg-white p-2 rounded-md text-black right-0 top-0 h-min w-36"
                       >
                         <button
@@ -433,7 +603,7 @@ function ChatList({
                             e.preventDefault();
                             e.stopPropagation();
                             // function to archive chat
-                            updateChatDisplay(friend.id, "archived");
+                            updateChatDisplay(unarchived.id, "archived");
                           }}
                           className="p-2 text-sm hover:bg-gray-400 w-full block"
                         >
@@ -444,7 +614,7 @@ function ChatList({
                             e.preventDefault();
                             e.stopPropagation();
                             // function to remove chat
-                            updateChatDisplay(friend.id, "hidden");
+                            updateChatDisplay(unarchived.id, "hidden");
                           }}
                           className="p-2 text-sm hover:bg-gray-400 w-full block"
                         >
@@ -454,21 +624,14 @@ function ChatList({
                     )}
                   </NavLink>
                 );
-              })
-          : null}
-        {Array.isArray(visibleGroups) && visibleGroups.length > 0
-          ? visibleGroups
-              .filter((group) => {
-                if (!search) {
-                  return true; // If there's no search input, show all groups
-                }
-                return group.name.toLowerCase().includes(search.toLowerCase());
-              })
-              .map((group) => {
-                const notificationCount = getNotificationCount(group);
+              }
+            } else {
+              if (
+                unarchived.name.toLowerCase().includes(search.toLowerCase())
+              ) {
                 return (
                   <NavLink
-                    to={`/group/${group.id}`}
+                    to={`/group/${unarchived.id}`}
                     className={({ isActive }) =>
                       `flex group hover:bg-gray-700 items-center p-3 justify-between relative ${
                         isActive
@@ -476,7 +639,7 @@ function ChatList({
                           : "bg-gray-800 border-l-4 border-gray-800"
                       }`
                     }
-                    key={group.id}
+                    key={unarchived.id}
                   >
                     <div className="flex items-center gap-5">
                       <button
@@ -490,23 +653,27 @@ function ChatList({
                         {/* group icon image */}
                         <img
                           className="rounded-full h-full w-full object-cover"
-                          src={group.picture ? group.picture : "/group.png"}
+                          src={
+                            unarchived.picture
+                              ? unarchived.picture
+                              : "/group.png"
+                          }
                           alt="profile picture"
                         />
                       </button>
-                      <div>{group.name}</div>
+                      <div>{unarchived.name}</div>
                     </div>
                     <div className="flex items-center gap-1">
-                      {notificationCount > 0 && (
+                      {unarchived.notification > 0 && (
                         <div className="text-white text-xs lg:text-sm rounded-full bg-green-600 p-1">
-                          {notificationCount}
+                          {unarchived.notification}
                         </div>
                       )}
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          updateGroupChatDisplay(group.id, true);
+                          updateGroupChatDisplay(unarchived.id, true);
                         }}
                         className="lg:hidden lg:group-hover:block p-1"
                       >
@@ -538,13 +705,12 @@ function ChatList({
                     </div>
                   </NavLink>
                 );
-              })
-          : null}
-        {/* Show "No chats found" if both are empty */}
-        {(!Array.isArray(UnarchivedChats) || UnarchivedChats.length === 0) &&
-        (!Array.isArray(groups) || groups.length === 0) ? (
+              }
+            }
+          })
+        ) : (
           <div className="font-bold font-custom">No chats found</div>
-        ) : null}
+        )}
       </section>
     );
   }

@@ -173,9 +173,6 @@ const CreateGroupDialog = ({ friends, onCreateGroup, getUser, mydata }) => {
                 </div>
               );
             })}
-            <div className="min-h-40 bg-gray-600"></div>
-            <div className="min-h-40 bg-gray-600"></div>
-            <div className="min-h-40 bg-gray-600"></div>
           </div>
           <div className="flex justify-end space-x-2">
             <button
