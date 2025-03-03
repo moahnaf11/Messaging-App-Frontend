@@ -71,7 +71,7 @@ function GroupConversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/message/${messageId}`,
+        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
         {
           method: "DELETE",
           headers: {
@@ -103,7 +103,7 @@ function GroupConversation() {
     if (!MessageWithMedia) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3000/message`, {
+        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -146,7 +146,7 @@ function GroupConversation() {
         }
         formData.append("content", caption);
         formData.append("groupChatId", selectedGroup.id);
-        const response = await fetch(`http://localhost:3000/message/media`, {
+        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message/media`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -181,7 +181,7 @@ function GroupConversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/message/${messageId}`,
+        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
         {
           method: "PUT",
           headers: {
@@ -325,7 +325,7 @@ function GroupConversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:3000/group/${id}/delete-notifications`,
+          `https://messaging-app-backend-abse.onrender.com/group/${id}/delete-notifications`,
           {
             method: "DELETE",
             signal,
@@ -372,7 +372,7 @@ function GroupConversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:3000/group/${id}`, {
+        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/group/${id}`, {
           method: "GET",
           signal,
           headers: {

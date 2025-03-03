@@ -43,7 +43,7 @@ function Friends() {
     }
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/friend/request`, {
+      const response = await fetch(`https://messaging-app-backend-abse.onrender.com/friend/request`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token for authentication
@@ -77,7 +77,7 @@ function Friends() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/friend/request/${friendId}`,
+        `https://messaging-app-backend-abse.onrender.com/friend/request/${friendId}`,
         {
           method: "DELETE",
           headers: {
@@ -109,7 +109,7 @@ function Friends() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/friend/request/block/${friendId}`,
+        `https://messaging-app-backend-abse.onrender.com/friend/request/block/${friendId}`,
         {
           method: "PUT",
           headers: {

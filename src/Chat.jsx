@@ -120,7 +120,7 @@ function Chat() {
     try {
       // Send request to update the database
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/admin-only`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/admin-only`,
         {
           method: "PUT",
           headers: {
@@ -150,7 +150,7 @@ function Chat() {
   const updateGroupChatDisplay = async (groupId, boolvalue) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/archive`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/archive`,
         {
           method: "PUT",
           headers: {
@@ -188,7 +188,7 @@ function Chat() {
       console.log(chatId);
       setOpenMenu(null);
       const response = await fetch(
-        `http://localhost:3000/friend/request/archive/${chatId}`,
+        `https://messaging-app-backend-abse.onrender.com/friend/request/archive/${chatId}`,
         {
           method: "PUT",
           headers: {
@@ -229,7 +229,7 @@ function Chat() {
     console.log("New Group:", groupData);
     // send `groupData` to backend
     try {
-      const response = await fetch(`http://localhost:3000/group`, {
+      const response = await fetch(`https://messaging-app-backend-abse.onrender.com/group`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -257,7 +257,7 @@ function Chat() {
   const removeMember = async (groupId, userId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/remove-member`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/remove-member`,
         {
           method: "DELETE",
           headers: {
@@ -298,7 +298,7 @@ function Chat() {
   const updateGroupMemberRole = async (groupId, memberId, newRole) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/role`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/role`,
         {
           method: "PUT",
           headers: {
@@ -334,7 +334,7 @@ function Chat() {
   // delete group request
   const deleteGroupRequest = async (groupId) => {
     try {
-      const response = await fetch(`http://localhost:3000/group/${groupId}`, {
+      const response = await fetch(`https://messaging-app-backend-abse.onrender.com/group/${groupId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -372,7 +372,7 @@ function Chat() {
     // Send a fetch request to add the member to the group
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/add-member`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/add-member`,
         {
           method: "POST",
           headers: {
@@ -416,7 +416,7 @@ function Chat() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/upload-photo`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/upload-photo`,
         {
           method: "PUT",
           body: formData, // Send the form data (which includes the file)
@@ -469,7 +469,7 @@ function Chat() {
   async function deleteGroupPhoto(groupId) {
     try {
       const response = await fetch(
-        `http://localhost:3000/group/${groupId}/upload-photo`,
+        `https://messaging-app-backend-abse.onrender.com/group/${groupId}/upload-photo`,
         {
           method: "DELETE", // Specify the HTTP method
           headers: {
@@ -523,7 +523,7 @@ function Chat() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/group/${groupId}`, {
+      const response = await fetch(`https://messaging-app-backend-abse.onrender.com/group/${groupId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -880,7 +880,7 @@ function Chat() {
           const token = localStorage.getItem("token");
           // Fetch the notifications for this group from the backend (localhost:3000)
           const response = await fetch(
-            `http://localhost:3000/friend/${id}/noti`,
+            `https://messaging-app-backend-abse.onrender.com/friend/${id}/noti`,
             {
               method: "DELETE",
               headers: {
@@ -909,7 +909,7 @@ function Chat() {
             const token = localStorage.getItem("token");
             // Fetch the notifications for this group from the backend (localhost:3000)
             const response = await fetch(
-              `http://localhost:3000/group/noti/delete`,
+              `https://messaging-app-backend-abse.onrender.com/group/noti/delete`,
               {
                 method: "DELETE",
                 headers: {
@@ -946,7 +946,7 @@ function Chat() {
             const token = localStorage.getItem("token");
             // Fetch the notifications for this group from the backend (localhost:3000)
             const response = await fetch(
-              `http://localhost:3000/group/${groupId}/group-notis`,
+              `https://messaging-app-backend-abse.onrender.com/group/${groupId}/group-notis`,
               {
                 method: "GET",
                 headers: {
@@ -1009,7 +1009,7 @@ function Chat() {
       try {
         const token = localStorage.getItem("token");
         const [friendsRes, groupChatsRes] = await Promise.all([
-          fetch(`http://localhost:3000/friend`, {
+          fetch(`https://messaging-app-backend-abse.onrender.com/friend`, {
             method: "GET",
             signal,
             headers: {
@@ -1017,7 +1017,7 @@ function Chat() {
               "Content-Type": "application/json",
             },
           }),
-          fetch(`http://localhost:3000/group`, {
+          fetch(`https://messaging-app-backend-abse.onrender.com/group`, {
             method: "GET",
             signal,
             headers: {
