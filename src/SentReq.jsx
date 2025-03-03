@@ -33,7 +33,7 @@ function SentReq() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/friend/request/${friendId}`,
+        `https://messaging-app-backend-p1g9.onrender.com/friend/request/${friendId}`,
         {
           method: "DELETE",
           headers: {

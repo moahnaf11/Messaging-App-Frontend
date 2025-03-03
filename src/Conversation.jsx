@@ -161,7 +161,7 @@ function Conversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-abse.onrender.com/friend/${id}/noti`,
+          `https://messaging-app-backend-p1g9.onrender.com/friend/${id}/noti`,
           {
             method: "DELETE",
             headers: {
@@ -204,7 +204,7 @@ function Conversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message/${id}`, {
+        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message/${id}`, {
           method: "GET",
           signal,
           headers: {
@@ -253,7 +253,7 @@ function Conversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
         {
           method: "DELETE",
           headers: {
@@ -285,7 +285,7 @@ function Conversation() {
     if (!MessageWithMedia) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message`, {
+        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -329,7 +329,7 @@ function Conversation() {
         formData.append("content", caption);
         formData.append("receiverId", user.id);
         formData.append("friendId", id);
-        const response = await fetch(`https://messaging-app-backend-abse.onrender.com/message/media`, {
+        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message/media`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -360,7 +360,7 @@ function Conversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-abse.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
         {
           method: "PUT",
           headers: {
