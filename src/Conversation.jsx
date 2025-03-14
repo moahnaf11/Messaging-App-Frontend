@@ -23,9 +23,14 @@ function Conversation() {
   const imageDialog = useRef(null);
   const [imageDisplay, setImageDisplay] = useState(null);
 
+  // text area ref
+  const textareaRef = useRef(null); // Reference to the textarea
+
   const messagesContainerRef = useRef(null);
+  const ignoreNextScroll = useRef(false);
   const prevScroll = useRef(0);
   const prevScrollTop = useRef(0);
+  const prevClientHeight = useRef(0);
 
   const friendObject =
     friends && person
@@ -53,20 +58,25 @@ function Conversation() {
   useEffect(() => {
     const container = messagesContainerRef.current;
     const handleScroll = () => {
+      if (ignoreNextScroll.current) {
+        return;
+      }
+      const container = messagesContainerRef.current;
       prevScroll.current = container.scrollHeight;
       prevScrollTop.current = container.scrollTop;
+      prevClientHeight.current = container.clientHeight;
       console.log(
-        "scroll details",
+        "scroll details from scroll event",
         prevScroll.current,
         prevScrollTop.current,
-        container.clientHeight,
-        prevScroll.current - prevScrollTop.current <= container.clientHeight
+        prevClientHeight.current,
+        prevScroll.current - prevScrollTop.current,
+        prevScroll.current - prevScrollTop.current <=
+          prevClientHeight.current + 1
       );
     };
-
     // Attach the scroll event listener
     container.addEventListener("scroll", handleScroll);
-
     // Cleanup function to remove event listener when component unmounts
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
@@ -77,30 +87,39 @@ function Conversation() {
     }
     const container = messagesContainerRef.current;
     if (!container) return;
-
     const oldScrollHeight = prevScroll.current;
+    const oldClientHeight = prevClientHeight.current;
+    prevClientHeight.current = container.clientHeight;
     prevScroll.current = container.scrollHeight;
-
     // Check if the user is at the bottom before new messages arrive
     console.log(
       "scroll details",
       oldScrollHeight,
       prevScrollTop.current,
-      container.clientHeight,
+      oldClientHeight,
       container.scrollHeight,
       prevScroll.current - prevScrollTop.current
     );
     const isAtBottom =
-      oldScrollHeight - prevScrollTop.current <= container.clientHeight;
-
+      oldScrollHeight - prevScrollTop.current <= oldClientHeight + 1;
     console.log("isAtBottom", isAtBottom);
-
     if (isAtBottom) {
       // After React updates the DOM, scroll to the bottom
       console.log("container scrollheight", container.scrollHeight);
       container.scrollTop = container.scrollHeight;
     }
+    ignoreNextScroll.current = false;
   }, [messages.length]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        100
+      )}px`;
+    }
+  }, [sendMessage]);
 
   // Listen for the 'receiveMessage' event
   useEffect(() => {
@@ -204,14 +223,17 @@ function Conversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message/${id}`, {
-          method: "GET",
-          signal,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/message/${id}`,
+          {
+            method: "GET",
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -284,19 +306,31 @@ function Conversation() {
     e.preventDefault();
     if (!MessageWithMedia) {
       try {
+        const msg = sendMessage;
+        setSendMessage("");
+        textareaRef.current.style.height = "auto";
+        // console.log(
+        //   "before submission",
+        //   prevScroll.current,
+        //   prevScrollTop.current,
+        //   prevClientHeight.current
+        // );
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: sendMessage,
-            receiverId: user.id,
-            friendId: id,
-          }),
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/message`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: msg,
+              receiverId: user.id,
+              friendId: id,
+            }),
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -305,8 +339,14 @@ function Conversation() {
         }
         const data = await response.json();
         console.log("message sent successfully", data);
-        setSendMessage("");
+        ignoreNextScroll.current = true;
         setMessages((prev) => [...prev, data]);
+        // console.log(
+        //   "after submission",
+        //   prevScroll.current,
+        //   prevScrollTop.current,
+        //   prevClientHeight.current
+        // );
         socket.emit("sendMessage", {
           content: data,
           receiverId: user.id, // Ensure you include receiverId here as well
@@ -329,13 +369,16 @@ function Conversation() {
         formData.append("content", caption);
         formData.append("receiverId", user.id);
         formData.append("friendId", id);
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message/media`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/message/media`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -358,6 +401,9 @@ function Conversation() {
 
   async function updateMessage(messageId) {
     try {
+      const msg = sendMessage;
+      setSendMessage("");
+      textareaRef.current.style.height = "auto";
       const token = localStorage.getItem("token");
       const response = await fetch(
         `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
@@ -367,7 +413,7 @@ function Conversation() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ content: sendMessage }),
+          body: JSON.stringify({ content: msg }),
         }
       );
 
@@ -378,9 +424,9 @@ function Conversation() {
       }
       const data = await response.json();
       console.log("message updated successfully", data);
-      setSendMessage("");
       setUpdateMessageIdentifier(null);
       setIsEdit(false);
+      ignoreNextScroll.current = true;
       setMessages((prev) =>
         prev.map((message) => {
           if (message.id !== messageId) {
@@ -495,7 +541,7 @@ function Conversation() {
                 return (
                   <div
                     key={message.id}
-                    className={`rounded-lg p-2 max-w-[50%] ${
+                    className={`rounded-lg p-2 lg:max-w-[50%] max-w-[75%] ${
                       message.senderId === mydata.id
                         ? "bg-green-400 text-black ml-auto"
                         : "bg-gray-300 text-black mr-auto"
@@ -611,6 +657,19 @@ function Conversation() {
                               key={file.id}
                             >
                               <img
+                                onLoad={() => {
+                                  const container =
+                                    messagesContainerRef.current;
+                                  const isAtBottom =
+                                    prevScroll.current -
+                                      prevScrollTop.current <=
+                                    prevClientHeight.current + 1;
+                                  console.log("isAtBottom", isAtBottom);
+                                  if (container && isAtBottom) {
+                                    container.scrollTop =
+                                      container.scrollHeight;
+                                  }
+                                }}
                                 className="object-cover w-full"
                                 src={file.url}
                                 alt="file"
@@ -620,7 +679,22 @@ function Conversation() {
                         } else if (file.type === "video") {
                           return (
                             <div key={file.id}>
-                              <video controls>
+                              <video
+                                onLoadedMetadata={() => {
+                                  const container =
+                                    messagesContainerRef.current;
+                                  const isAtBottom =
+                                    prevScroll.current -
+                                      prevScrollTop.current <=
+                                    prevClientHeight.current + 1;
+                                  console.log("isAtBottom", isAtBottom);
+                                  if (container && isAtBottom) {
+                                    container.scrollTop =
+                                      container.scrollHeight;
+                                  }
+                                }}
+                                controls
+                              >
                                 <source
                                   src={file.url}
                                   type={file.mimeType || "video/mp4"}
@@ -714,8 +788,27 @@ function Conversation() {
           </svg>
         </button>
 
-        <input
-          className="bg-gray-900 px-2 py-1 min-w-[50%] text-center rounded-full text-gray-400"
+        <textarea
+          ref={textareaRef}
+          rows={"1"}
+          onInput={(e) => {
+            e.target.style.height = "auto"; // Reset height
+            e.target.style.height = `${Math.min(e.target.scrollHeight, 100)}px`; // Expand up to 100px
+            const container = messagesContainerRef.current;
+            console.log(
+              prevScroll.current,
+              prevScrollTop.current,
+              prevClientHeight.current
+            );
+            const isAtBottom =
+              prevScroll.current - prevScrollTop.current <=
+              prevClientHeight.current + 1;
+            console.log("isAtBottom", isAtBottom);
+            if (container && isAtBottom) {
+              container.scrollTop = container.scrollHeight;
+            }
+          }}
+          className="bg-gray-900 flex px-2 py-1 flex-1 lg:flex-none min-w-[50%] items-center text-center rounded-full text-gray-400 max-h-[100px] resize-none overflow-y-auto"
           type="text"
           value={sendMessage}
           onChange={(e) => setSendMessage(e.target.value)}

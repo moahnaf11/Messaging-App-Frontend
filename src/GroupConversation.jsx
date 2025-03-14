@@ -33,9 +33,14 @@ function GroupConversation() {
   const [sendMessage, setSendMessage] = useState("");
   const lastSenderIdRef = useRef(null); // Initialize a ref to store the last sender ID
 
+  // text area ref
+  const textareaRef = useRef(null); // Reference to the textarea
+
   const messagesContainerRef = useRef(null);
+  const ignoreNextScroll = useRef(false);
   const prevScroll = useRef(0);
   const prevScrollTop = useRef(0);
+  const prevClientHeight = useRef(0);
 
   console.log("messages", messages);
 
@@ -102,18 +107,24 @@ function GroupConversation() {
     e.preventDefault();
     if (!MessageWithMedia) {
       try {
+        const msg = sendMessage;
+        setSendMessage("");
+        textareaRef.current.style.height = "auto";
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: sendMessage,
-            groupChatId: selectedGroup.id,
-          }),
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/message`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              content: msg,
+              groupChatId: selectedGroup.id,
+            }),
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -122,7 +133,7 @@ function GroupConversation() {
         }
         const data = await response.json();
         console.log("message sent successfully", data);
-        setSendMessage("");
+        ignoreNextScroll.current = true;
         setMessages((prev) => [...prev, data]);
         socket.emit("sendGroupMessage", {
           content: data,
@@ -146,13 +157,16 @@ function GroupConversation() {
         }
         formData.append("content", caption);
         formData.append("groupChatId", selectedGroup.id);
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/message/media`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/message/media`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -179,6 +193,9 @@ function GroupConversation() {
 
   async function updateMessage(messageId) {
     try {
+      const msg = sendMessage;
+      setSendMessage("");
+      textareaRef.current.style.height = "auto";
       const token = localStorage.getItem("token");
       const response = await fetch(
         `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
@@ -188,7 +205,7 @@ function GroupConversation() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ content: sendMessage }),
+          body: JSON.stringify({ content: msg }),
         }
       );
 
@@ -199,9 +216,9 @@ function GroupConversation() {
       }
       const data = await response.json();
       console.log("message updated successfully", data);
-      setSendMessage("");
       setUpdateMessageIdentifier(null);
       setIsEdit(false);
+      ignoreNextScroll.current = true;
       setMessages((prev) =>
         prev.map((message) => {
           if (message.id !== messageId) {
@@ -224,20 +241,25 @@ function GroupConversation() {
   useEffect(() => {
     const container = messagesContainerRef.current;
     const handleScroll = () => {
+      if (ignoreNextScroll.current) {
+        return;
+      }
+      const container = messagesContainerRef.current;
       prevScroll.current = container.scrollHeight;
       prevScrollTop.current = container.scrollTop;
+      prevClientHeight.current = container.clientHeight;
       console.log(
-        "scroll details",
+        "scroll details from scroll event",
         prevScroll.current,
         prevScrollTop.current,
-        container.clientHeight,
-        prevScroll.current - prevScrollTop.current <= container.clientHeight
+        prevClientHeight.current,
+        prevScroll.current - prevScrollTop.current,
+        prevScroll.current - prevScrollTop.current <=
+          prevClientHeight.current + 1
       );
     };
-
     // Attach the scroll event listener
     container.addEventListener("scroll", handleScroll);
-
     // Cleanup function to remove event listener when component unmounts
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
@@ -248,30 +270,39 @@ function GroupConversation() {
     }
     const container = messagesContainerRef.current;
     if (!container) return;
-
     const oldScrollHeight = prevScroll.current;
+    const oldClientHeight = prevClientHeight.current;
+    prevClientHeight.current = container.clientHeight;
     prevScroll.current = container.scrollHeight;
-
     // Check if the user is at the bottom before new messages arrive
     console.log(
       "scroll details",
       oldScrollHeight,
       prevScrollTop.current,
-      container.clientHeight,
+      oldClientHeight,
       container.scrollHeight,
       prevScroll.current - prevScrollTop.current
     );
     const isAtBottom =
-      oldScrollHeight - prevScrollTop.current <= container.clientHeight;
-
+      oldScrollHeight - prevScrollTop.current <= oldClientHeight + 1;
     console.log("isAtBottom", isAtBottom);
-
     if (isAtBottom) {
       // After React updates the DOM, scroll to the bottom
       console.log("container scrollheight", container.scrollHeight);
-      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      container.scrollTop = container.scrollHeight;
     }
+    ignoreNextScroll.current = false;
   }, [messages.length]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        100
+      )}px`;
+    }
+  }, [sendMessage]);
 
   useEffect(() => {
     // Setup the socket listener for incoming messages
@@ -372,14 +403,17 @@ function GroupConversation() {
     async function getConversation(id) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/group/${id}`, {
-          method: "GET",
-          signal,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `https://messaging-app-backend-p1g9.onrender.com/group/${id}`,
+          {
+            method: "GET",
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const data = await response.json();
@@ -536,7 +570,7 @@ function GroupConversation() {
                       </div>
                     )}
                     <div
-                      className={`rounded-lg p-2 max-w-[50%] ${
+                      className={`rounded-lg p-2 lg:max-w-[50%] max-w-[75%] ${
                         message.senderId === mydata.id
                           ? "bg-green-400 text-black ml-auto"
                           : "bg-gray-300 text-black mr-auto"
@@ -652,6 +686,19 @@ function GroupConversation() {
                                 key={file.id}
                               >
                                 <img
+                                  onLoad={() => {
+                                    const container =
+                                      messagesContainerRef.current;
+                                    const isAtBottom =
+                                      prevScroll.current -
+                                        prevScrollTop.current <=
+                                      prevClientHeight.current + 1;
+                                    console.log("isAtBottom", isAtBottom);
+                                    if (container && isAtBottom) {
+                                      container.scrollTop =
+                                        container.scrollHeight;
+                                    }
+                                  }}
                                   className="object-cover w-full"
                                   src={file.url}
                                   alt="file"
@@ -661,7 +708,22 @@ function GroupConversation() {
                           } else if (file.type === "video") {
                             return (
                               <div key={file.id}>
-                                <video controls>
+                                <video
+                                  onLoadedMetadata={() => {
+                                    const container =
+                                      messagesContainerRef.current;
+                                    const isAtBottom =
+                                      prevScroll.current -
+                                        prevScrollTop.current <=
+                                      prevClientHeight.current + 1;
+                                    console.log("isAtBottom", isAtBottom);
+                                    if (container && isAtBottom) {
+                                      container.scrollTop =
+                                        container.scrollHeight;
+                                    }
+                                  }}
+                                  controls
+                                >
                                   <source
                                     src={file.url}
                                     type={file.mimeType || "video/mp4"}
@@ -759,8 +821,30 @@ function GroupConversation() {
             </svg>
           </button>
 
-          <input
-            className="bg-gray-900 px-2 py-1 min-w-[50%] text-center rounded-full text-gray-400"
+          <textarea
+            ref={textareaRef}
+            rows={"1"}
+            onInput={(e) => {
+              e.target.style.height = "auto"; // Reset height
+              e.target.style.height = `${Math.min(
+                e.target.scrollHeight,
+                100
+              )}px`; // Expand up to 100px
+              const container = messagesContainerRef.current;
+              console.log(
+                prevScroll.current,
+                prevScrollTop.current,
+                prevClientHeight.current
+              );
+              const isAtBottom =
+                prevScroll.current - prevScrollTop.current <=
+                prevClientHeight.current + 1;
+              console.log("isAtBottom", isAtBottom);
+              if (container && isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+              }
+            }}
+            className="bg-gray-900 flex px-2 py-1 flex-1 lg:flex-none min-w-[50%] items-center text-center rounded-full text-gray-400 max-h-[100px] resize-none overflow-y-auto"
             type="text"
             value={sendMessage}
             onChange={(e) => setSendMessage(e.target.value)}

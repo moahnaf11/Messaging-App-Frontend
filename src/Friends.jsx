@@ -43,14 +43,17 @@ function Friends() {
     }
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/friend/request`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token for authentication
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: addusername }),
-      });
+      const response = await fetch(
+        `https://messaging-app-backend-p1g9.onrender.com/friend/request`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: addusername }),
+        }
+      );
       if (!response.ok) {
         const data = await response.json();
         setUsernameError(data.error);

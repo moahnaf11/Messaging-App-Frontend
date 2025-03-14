@@ -229,14 +229,17 @@ function Chat() {
     console.log("New Group:", groupData);
     // send `groupData` to backend
     try {
-      const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/group`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include JWT token if needed
-        },
-        body: JSON.stringify(groupData), // Send action in request body
-      });
+      const response = await fetch(
+        `https://messaging-app-backend-p1g9.onrender.com/group`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include JWT token if needed
+          },
+          body: JSON.stringify(groupData), // Send action in request body
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json();
@@ -334,13 +337,16 @@ function Chat() {
   // delete group request
   const deleteGroupRequest = async (groupId) => {
     try {
-      const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/group/${groupId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const response = await fetch(
+        `https://messaging-app-backend-p1g9.onrender.com/group/${groupId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -523,16 +529,19 @@ function Chat() {
     }
 
     try {
-      const response = await fetch(`https://messaging-app-backend-p1g9.onrender.com/group/${groupId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // if you need authentication
-        },
-        body: JSON.stringify({
-          name: groupName,
-        }),
-      });
+      const response = await fetch(
+        `https://messaging-app-backend-p1g9.onrender.com/group/${groupId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // if you need authentication
+          },
+          body: JSON.stringify({
+            name: groupName,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
