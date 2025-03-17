@@ -2,12 +2,13 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import socket from "../socket";
-import { ProfileDialogContext } from "./Chat";
+import { ProfileDialogContext, FriendNotificationContext } from "./Chat";
 
 function Conversation() {
   const { id } = useParams();
   console.log("friend id", id);
   const { openProfileDialog } = useContext(ProfileDialogContext);
+  const { friendNoti } = useContext(FriendNotificationContext);
   const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
   const { mydata, friends, setFriends, showNoti } = useOutletContext();
@@ -98,7 +99,7 @@ function Conversation() {
       prevScrollTop.current,
       oldClientHeight,
       container.scrollHeight,
-      prevScroll.current - prevScrollTop.current
+      oldScrollHeight - prevScrollTop.current
     );
     const isAtBottom =
       oldScrollHeight - prevScrollTop.current <= oldClientHeight + 1;
@@ -306,11 +307,17 @@ function Conversation() {
     e.preventDefault();
     if (!MessageWithMedia) {
       try {
+        // console.log(
+        //   "before submission before textarea reset",
+        //   prevScroll.current,
+        //   prevScrollTop.current,
+        //   prevClientHeight.current
+        // );
         const msg = sendMessage;
         setSendMessage("");
         textareaRef.current.style.height = "auto";
         // console.log(
-        //   "before submission",
+        //   "before submission after textarea reset",
         //   prevScroll.current,
         //   prevScrollTop.current,
         //   prevClientHeight.current
@@ -341,12 +348,12 @@ function Conversation() {
         console.log("message sent successfully", data);
         ignoreNextScroll.current = true;
         setMessages((prev) => [...prev, data]);
-        // console.log(
-        //   "after submission",
-        //   prevScroll.current,
-        //   prevScrollTop.current,
-        //   prevClientHeight.current
-        // );
+        console.log(
+          "after submission",
+          prevScroll.current,
+          prevScrollTop.current,
+          prevClientHeight.current
+        );
         socket.emit("sendMessage", {
           content: data,
           receiverId: user.id, // Ensure you include receiverId here as well
@@ -494,6 +501,25 @@ function Conversation() {
                 <g id="SVGRepo_iconCarrier">
                   {" "}
                   <circle cx="8" cy="8" r="8" fill="#004cff"></circle>{" "}
+                </g>
+              </svg>
+            )}
+            {friendNoti && (
+              <svg
+                className="size-3 lg:size-5"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <circle cx="8" cy="8" r="8" fill="#ff0000"></circle>{" "}
                 </g>
               </svg>
             )}

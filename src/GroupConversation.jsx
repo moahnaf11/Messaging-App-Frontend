@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { NavLink, useOutletContext, useParams } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import socket from "../socket";
+import { FriendNotificationContext } from "./Chat";
 
 function GroupConversation() {
   const { id } = useParams();
@@ -10,8 +11,6 @@ function GroupConversation() {
   const {
     mydata,
     setSelectedGroup,
-    myGroup,
-    setMyGroup,
     selectedGroup,
     setShowGroupInfo,
     myRecord,
@@ -19,8 +18,7 @@ function GroupConversation() {
     showNoti,
   } = useOutletContext();
   const [updateMessageIdentifier, setUpdateMessageIdentifier] = useState(null);
-  // const [myGroup, setMyGroup] = useState(null);
-  // const person = mydata ? mydata.id : null;
+  const { friendNoti } = useContext(FriendNotificationContext);
   const [messages, setMessages] = useState([]);
   const messageMediaDialog = useRef(null);
   const fileInputRef = useRef(null);
@@ -490,6 +488,25 @@ function GroupConversation() {
                 <g id="SVGRepo_iconCarrier">
                   {" "}
                   <circle cx="8" cy="8" r="8" fill="#004cff"></circle>{" "}
+                </g>
+              </svg>
+            )}
+            {friendNoti && (
+              <svg
+                className="size-3 lg:size-5"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <circle cx="8" cy="8" r="8" fill="#ff0000"></circle>{" "}
                 </g>
               </svg>
             )}

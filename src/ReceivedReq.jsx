@@ -1,19 +1,22 @@
 import { useOutletContext } from "react-router-dom";
-import { useState, useContext } from "react";
-import { ProfileDialogContext } from "./Chat";
+import { useState, useContext, useEffect } from "react";
+import { ProfileDialogContext, FriendNotificationContext } from "./Chat";
 import socket from "../socket";
 
 function ReceivedReq() {
   const { friends, mydata, getUser, setFriends } = useOutletContext();
   const { openProfileDialog } = useContext(ProfileDialogContext);
+  const { setFriendNoti, pendingRequestsList } = useContext(
+    FriendNotificationContext
+  );
 
   const [search, setSearch] = useState("");
 
   function handleSearch(e) {
     setSearch(e.target.value);
   }
-  const pendingRequests = friends
-    ? friends.filter((friend) => {
+  const pendingRequests = pendingRequestsList
+    ? pendingRequestsList.filter((friend) => {
         const user = getUser(friend);
         if (!search) {
           return (
