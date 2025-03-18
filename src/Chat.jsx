@@ -86,15 +86,11 @@ function Chat() {
   console.log("selected group", selectedGroup);
 
   // filter pending requests
-  const pendingRequestsList = useMemo(() => {
-    return mydata
-      ? friends.filter((friend) => {
-          return (
-            friend.status === "pending" && friend.requestee.id === mydata.id
-          );
-        })
-      : [];
-  }, [friends]);
+  const pendingRequestsList = mydata
+    ? friends.filter((friend) => {
+        return friend.status === "pending" && friend.requestee.id === mydata.id;
+      })
+    : [];
 
   // toggle archived function
   const toggleArchived = () => {
@@ -1108,7 +1104,14 @@ function Chat() {
       socket.connect();
     }
     console.log("data id", data.id);
-    socket.emit("login", data.id);
+    socket.on("connect", () => {
+      console.log("Socket connected, emitting login...");
+      socket.emit("login", data.id);
+    });
+
+    return () => {
+      socket.off("connect");
+    };
   }, []);
 
   // Close the menu if a click is detected outside of the menu
