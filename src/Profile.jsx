@@ -131,7 +131,8 @@ function Profile() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/profile/${userProfile.id}`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/profile/${userProfile.id}`,
           {
             method: "PUT",
             headers: {
@@ -191,7 +192,8 @@ function Profile() {
       // Append the file and other fields (if necessary) to the FormData object
       photoFile.append("profilepic", filedoc);
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/profile/${userProfile.id}/upload-photo`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/profile/${userProfile.id}/upload-photo`,
         {
           method: "PUT",
           headers: {
@@ -231,7 +233,8 @@ function Profile() {
       setDelPic(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/profile/${userProfile.id}/upload-photo`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/profile/${userProfile.id}/upload-photo`,
         {
           method: "DELETE",
           headers: {
@@ -276,7 +279,8 @@ function Profile() {
       setdelacc(true);
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/profile/${userProfile.id}`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/profile/${userProfile.id}`,
         {
           method: "DELETE",
           headers: {

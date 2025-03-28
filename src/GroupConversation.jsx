@@ -74,7 +74,8 @@ function GroupConversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/message/${messageId}`,
         {
           method: "DELETE",
           headers: {
@@ -110,7 +111,8 @@ function GroupConversation() {
         textareaRef.current.style.height = "auto";
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/message`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/message`,
           {
             method: "POST",
             headers: {
@@ -156,7 +158,8 @@ function GroupConversation() {
         formData.append("content", caption);
         formData.append("groupChatId", selectedGroup.id);
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/message/media`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/message/media`,
           {
             method: "POST",
             headers: {
@@ -196,7 +199,8 @@ function GroupConversation() {
       textareaRef.current.style.height = "auto";
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/message/${messageId}`,
         {
           method: "PUT",
           headers: {
@@ -354,7 +358,8 @@ function GroupConversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/group/${id}/delete-notifications`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/group/${id}/delete-notifications`,
           {
             method: "DELETE",
             signal,
@@ -402,7 +407,8 @@ function GroupConversation() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/group/${id}`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/group/${id}`,
           {
             method: "GET",
             signal,

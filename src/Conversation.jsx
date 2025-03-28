@@ -23,6 +23,8 @@ function Conversation() {
   const fileInputRef = useRef(null);
   const imageDialog = useRef(null);
   const [imageDisplay, setImageDisplay] = useState(null);
+  // typing state
+  const [typing, setTyping] = useState(false);
 
   // text area ref
   const textareaRef = useRef(null); // Reference to the textarea
@@ -120,6 +122,10 @@ function Conversation() {
         100
       )}px`;
     }
+    console.log("user", user);
+    if (user) {
+      socket.emit("typingstate", { user, id, typingValue: !!sendMessage });
+    }
   }, [sendMessage]);
 
   // Listen for the 'receiveMessage' event
@@ -136,6 +142,13 @@ function Conversation() {
       );
       if (messageData.content.friendId === id) {
         setMessages((prev) => [...prev, messageData.content]);
+      }
+    });
+
+    socket.on("settypingstate", ({ user, chatroom, typingValue }) => {
+      console.log("chatroom", id === chatroom && mydata.id === user.id);
+      if (id === chatroom && mydata.id === user.id) {
+        setTyping((prev) => typingValue);
       }
     });
 
@@ -172,6 +185,7 @@ function Conversation() {
       socket.off("receiveMediaMessage");
       socket.off("receiveDeleteMessage");
       socket.off("receiveUpdateMessage");
+      socket.off("settypingstate");
     };
   }, [id]);
 
@@ -276,7 +290,8 @@ function Conversation() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/message/${messageId}`,
         {
           method: "DELETE",
           headers: {
@@ -324,7 +339,8 @@ function Conversation() {
         // );
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/message`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/message`,
           {
             method: "POST",
             headers: {
@@ -377,7 +393,8 @@ function Conversation() {
         formData.append("receiverId", user.id);
         formData.append("friendId", id);
         const response = await fetch(
-          `https://messaging-app-backend-p1g9.onrender.com/message/media`,
+          `https://messaging-app-backend-p1g9.onrender.com
+/message/media`,
           {
             method: "POST",
             headers: {
@@ -413,7 +430,8 @@ function Conversation() {
       textareaRef.current.style.height = "auto";
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://messaging-app-backend-p1g9.onrender.com/message/${messageId}`,
+        `https://messaging-app-backend-p1g9.onrender.com
+/message/${messageId}`,
         {
           method: "PUT",
           headers: {
@@ -544,7 +562,10 @@ function Conversation() {
             } `}
           ></div>
         </button>
-        <div>{user ? user.username : null}</div>
+        <div>
+          <div>{user ? user.username : null}</div>
+          {typing && <div className="text-xs">...typing</div>}
+        </div>
       </section>
       {/* messages rendering */}
       <section
